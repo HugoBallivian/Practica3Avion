@@ -1,0 +1,183 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    var countries = ViewBag.Countries as List<AvionesDistribuidos.Models.CountryViewModel>;
+    var flights = ViewBag.Flights as List<string>;
+}
+<div class="container">
+    <h1>Reservación de Vuelos</h1>
+
+    <div class="row mb-3">
+        <div class="col-12">
+            <label for="countrySelect">Selecciona País (Ciudad - País)</label>
+            <select id="countrySelect" class="form-select">
+                <option value="">-- Selecciona --</option>
+                @foreach(var country in countries)
+                {
+                    <option value="@country.Name">@country.Capital - @country.Name</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-12">
+            <label for="flightSelect">Selecciona Vuelo</label>
+            <select id="flightSelect" class="form-select">
+                <option value="">-- Selecciona Vuelo --</option>
+                @foreach(var flight in flights)
+                {
+                    <option value="@flight">@flight</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <hr />
+    <h2>Mapa de Asientos</h2>
+    <div class="seat-container">
+        <div class="seat-section first-class">
+            @foreach (var row in new[] { "A", "B", "C", "D", "E", "F" })
+            {
+                <div class="seat-row">
+                    <div class="row-label">@row</div>
+                    @for (int col = 1; col <= 3; col++)
+                    {
+                        var colStr = col.ToString("D2");
+                        <div class="seat libre" data-seat="@row@colStr" ondblclick="openSeatModal(this)">
+                            @row@colStr
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="seat-section economy">
+            @foreach (var row in new[] { "A", "B", "C", "D", "E", "F" })
+            {
+                <div class="seat-row">
+                    <div class="row-label">@row</div>
+                    @for (int col = 4; col <= 29; col++)
+                    {
+                        var colStr = col.ToString("D2");
+                        if (col == 17 && (row == "A" || row == "F"))
+                        {
+                            <div class="seat empty"></div>
+                        }
+                        else
+                        {
+                            <div class="seat libre" data-seat="@row@colStr" ondblclick="openSeatModal(this)">
+                                @row@colStr
+                            </div>
+                        }
+                    }
+                </div>
+            } </div>
+        </div>
+    </div>
+
+    <div id="seatModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeSeatModal()">&times;</span>
+            <h3>Modificar Estado del Asiento <span id="modalSeatId"></span></h3>
+            <div id="modalBody">
+            </div>
+            <button onclick="saveSeatChange()" class="modal-save">Guardar</button>
+        </div>
+    </div>
+
+    <div class="row flight-info mt-4">
+        <div class="col-md-4">
+            <label>Ruta del vuelo:</label>
+            <div id="flightRoute">Ucrania (Kiev) - Bolivia (Cochabamba)</div>
+        </div>
+        <div class="col-md-4">
+            <label>Horarios:</label>
+            <div id="flightTimes">
+                Salida: 18:55<br />
+                Llegada: 20/Abr/2025
+            </div>
+        </div>
+        <div class="col-md-4">
+            <label>Origen / Destino:</label>
+            <div id="flightCities">
+                Origen: Ucrania (Kiev)<br />
+                Destino: Bolivia (Cochabamba)
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="seatModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeSeatModal()">&times;</span>
+        <h3>Modificar Estado del Asiento <span id="modalSeatId"></span></h3>
+        <div id="modalBody">
+        </div>
+        <button onclick="saveSeatChange()">Guardar</button>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var currentSeat = null;
+        var currentSeatState = null;
+        var newSeatState = null;
+
+        function openSeatModal(seatElement) {
+            currentSeat = seatElement;
+            currentSeatState = getSeatState(seatElement);
+            document.getElementById("modalSeatId").textContent = seatElement.getAttribute("data-seat");
+            var modalBody = document.getElementById("modalBody");
+            modalBody.innerHTML = "";
+
+            // Según el estado actual se muestran las opciones válidas
+            if (currentSeatState === "libre") {
+                modalBody.innerHTML += '<button onclick="setNewState(\'reserva\')" class="modal-btn reserva-btn">Reserva</button>';
+                modalBody.innerHTML += '<button onclick="setNewState(\'venta\')" class="modal-btn venta-btn">Venta</button>';
+            } else if (currentSeatState === "reserva") {
+                modalBody.innerHTML += '<button onclick="setNewState(\'venta\')" class="modal-btn venta-btn">Venta</button>';
+                modalBody.innerHTML += '<button onclick="setNewState(\'devolucion\')" class="modal-btn devolucion-btn">Devolución</button>';
+            } else if (currentSeatState === "venta") {
+                modalBody.innerHTML = "<p>Asiento vendido. No se permiten cambios.</p>";
+            } else if (currentSeatState === "devolucion") {
+                modalBody.innerHTML += '<button onclick="setNewState(\'libre\')" class="modal-btn libre-btn">Libre</button>';
+            }
+            document.getElementById("seatModal").style.display = "block";
+        }
+
+        function setNewState(state) {
+            newSeatState = state;
+        }
+
+        function saveSeatChange() {
+            if (newSeatState && currentSeat) {
+                currentSeat.classList.remove("libre", "reserva", "venta", "devolucion");
+                currentSeat.classList.add(newSeatState);
+                newSeatState = null;
+                currentSeat = null;
+                closeSeatModal();
+            } else {
+                alert("No se seleccionó un nuevo estado válido.");
+            }
+        }
+
+        function closeSeatModal() {
+            document.getElementById("seatModal").style.display = "none";
+        }
+
+        function getSeatState(seatElement) {
+            if (seatElement.classList.contains("libre")) return "libre";
+            if (seatElement.classList.contains("reserva")) return "reserva";
+            if (seatElement.classList.contains("venta")) return "venta";
+            if (seatElement.classList.contains("devolucion")) return "devolucion";
+            return "libre";
+        }
+
+        window.onclick = function (event) {
+            var modal = document.getElementById("seatModal");
+            if (event.target == modal) {
+                closeSeatModal();
+            }
+        }
+    </script>
+}

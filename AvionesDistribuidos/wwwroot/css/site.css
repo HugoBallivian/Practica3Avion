@@ -1,0 +1,131 @@
+
+.container {
+    margin: 20px;
+}
+
+.seat-container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap; 
+}
+
+.seat-section {
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.seat-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 5px;
+}
+
+.row-label {
+    width: 20px;
+    font-weight: bold;
+}
+
+.seat {
+    width: 30px;
+    height: 30px;
+    background-color: #ADD8E6; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 10px;
+    margin: 2px;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+    .seat:hover {
+        transform: scale(1.1);
+    }
+
+    .seat.empty {
+        background: transparent;
+        cursor: default;
+    }
+
+/* Estados */
+.reserva {
+    background-color: #FFD700; 
+}
+
+.venta {
+    background-color: #90EE90; 
+}
+
+.devolucion {
+    background-color: #F08080; 
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    width: 300px;
+    border-radius: 8px;
+    position: relative;
+    text-align: center;
+}
+
+.close {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.modal-btn {
+    margin: 5px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+}
+
+.reserva-btn {
+    background-color: #FFD700;
+}
+
+.venta-btn {
+    background-color: #90EE90;
+}
+
+.devolucion-btn {
+    background-color: #F08080;
+}
+
+.libre-btn {
+    background-color: #ADD8E6;
+}
+
+.modal-save {
+    margin-top: 10px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    background: #007bff;
+    color: #fff;
+    cursor: pointer;
+}
