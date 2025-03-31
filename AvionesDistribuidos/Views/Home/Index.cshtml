@@ -11,7 +11,7 @@
             <label for="countrySelect">Selecciona País (Ciudad - País)</label>
             <select id="countrySelect" class="form-select">
                 <option value="">-- Selecciona --</option>
-                @foreach(var country in countries)
+                @foreach (var country in ViewBag.Countries as List<AvionesDistribuidos.Models.CountryViewModel>)
                 {
                     <option value="@country.Name">@country.Capital - @country.Name</option>
                 }
@@ -35,44 +35,30 @@
     <hr />
     <h2>Mapa de Asientos</h2>
     <div class="seat-container">
-        <div class="seat-section first-class">
-            @foreach (var row in new[] { "A", "B", "C", "D", "E", "F" })
-            {
-                <div class="seat-row">
-                    <div class="row-label">@row</div>
-                    @for (int col = 1; col <= 3; col++)
-                    {
-                        var colStr = col.ToString("D2");
-                        <div class="seat libre" data-seat="@row@colStr" ondblclick="openSeatModal(this)">
-                            @row@colStr
-                        </div>
-                    }
-                </div>
-            }
-        </div>
-
-        <div class="seat-section economy">
-            @foreach (var row in new[] { "A", "B", "C", "D", "E", "F" })
-            {
-                <div class="seat-row">
-                    <div class="row-label">@row</div>
-                    @for (int col = 4; col <= 29; col++)
-                    {
-                        var colStr = col.ToString("D2");
-                        if (col == 17 && (row == "A" || row == "F"))
+        @foreach(var section in ViewBag.SeatConfig as List<AvionesDistribuidos.Models.SeatConfiguration>)
+        {
+            <div class="seat-section @(section.SectionName.Replace(" ", "").ToLower())">
+                @foreach(var row in section.Rows)
+                {
+                    <div class="seat-row">
+                        <div class="row-label">@row.RowLabel</div>
+                        @foreach(var seat in row.Seats)
                         {
-                            <div class="seat empty"></div>
+                            if(seat.State == "empty")
+                            {
+                                <div class="seat empty"></div>
+                            }
+                            else
+                            {
+                                <div class="seat @seat.State" data-seat="@seat.SeatId" ondblclick="openSeatModal(this)">
+                                    @seat.SeatId
+                                </div>
+                            }
                         }
-                        else
-                        {
-                            <div class="seat libre" data-seat="@row@colStr" ondblclick="openSeatModal(this)">
-                                @row@colStr
-                            </div>
-                        }
-                    }
-                </div>
-            } </div>
-        </div>
+                    </div>
+                }
+            </div>
+        }
     </div>
 
     <div id="seatModal" class="modal">
@@ -116,8 +102,8 @@
         <button onclick="saveSeatChange()">Guardar</button>
     </div>
 </div>
-
-@section Scripts {
+@section Scripts
+{
     <script>
         var currentSeat = null;
         var currentSeatState = null;

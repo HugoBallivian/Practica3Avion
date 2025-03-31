@@ -96,6 +96,19 @@
         "build": {
           "buildTransitive/net6.0/_._": {}
         }
+      },
+      "Nager.Country/4.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/net6.0/Nager.Country.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/Nager.Country.dll": {
+            "related": ".xml"
+          }
+        }
       }
     }
   },
@@ -270,12 +283,36 @@
         "microsoft.extensions.primitives.nuspec",
         "useSharedDesignerContext.txt"
       ]
+    },
+    "Nager.Country/4.0.0": {
+      "sha512": "fxBi2O9KxFT1ndwSJk9suxzCe3YQYT15qHk3a7ZOoxOH5q8IYT+qvYAoZg7ecjUSqZoIKsgL1lJnGegDua0mCA==",
+      "type": "package",
+      "path": "nager.country/4.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.md",
+        "README.md",
+        "icon.png",
+        "lib/net48/Nager.Country.dll",
+        "lib/net48/Nager.Country.xml",
+        "lib/net6.0/Nager.Country.dll",
+        "lib/net6.0/Nager.Country.xml",
+        "lib/netstandard2.0/Nager.Country.dll",
+        "lib/netstandard2.0/Nager.Country.xml",
+        "lib/netstandard2.1/Nager.Country.dll",
+        "lib/netstandard2.1/Nager.Country.xml",
+        "nager.country.4.0.0.nupkg.sha512",
+        "nager.country.nuspec",
+        "readme.txt"
+      ]
     }
   },
   "projectFileDependencyGroups": {
     "net8.0": [
       "CountryData >= 6.11.0",
-      "MaxMind.GeoIP2 >= 5.2.0"
+      "MaxMind.GeoIP2 >= 5.2.0",
+      "Nager.Country >= 4.0.0"
     ]
   },
   "packageFolders": {
@@ -284,11 +321,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Dell\\source\\repos\\AvionesDistribuidos\\AvionesDistribuidos\\AvionesDistribuidos.csproj",
+      "projectUniqueName": "C:\\Users\\Dell\\Downloads\\Dsitribuidos\\Practica3Avion\\AvionesDistribuidos\\AvionesDistribuidos.csproj",
       "projectName": "AvionesDistribuidos",
-      "projectPath": "C:\\Users\\Dell\\source\\repos\\AvionesDistribuidos\\AvionesDistribuidos\\AvionesDistribuidos.csproj",
+      "projectPath": "C:\\Users\\Dell\\Downloads\\Dsitribuidos\\Practica3Avion\\AvionesDistribuidos\\AvionesDistribuidos.csproj",
       "packagesPath": "C:\\Users\\Dell\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Dell\\source\\repos\\AvionesDistribuidos\\AvionesDistribuidos\\obj\\",
+      "outputPath": "C:\\Users\\Dell\\Downloads\\Dsitribuidos\\Practica3Avion\\AvionesDistribuidos\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Dell\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -330,6 +367,10 @@
           "MaxMind.GeoIP2": {
             "target": "Package",
             "version": "[5.2.0, )"
+          },
+          "Nager.Country": {
+            "target": "Package",
+            "version": "[4.0.0, )"
           }
         },
         "imports": [

@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="CountryData" Version="6.11.0" />
     <PackageReference Include="MaxMind.GeoIP2" Version="5.2.0" />
+    <PackageReference Include="Nager.Country" Version="4.0.0" />
   </ItemGroup>
 
 </Project>
