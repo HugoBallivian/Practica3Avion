@@ -5,32 +5,65 @@
 }
 <div class="container">
     <h1>Reservación de Vuelos</h1>
-
-    <div class="row mb-3">
-        <div class="col-12">
-            <label for="countrySelect">Selecciona País (Estado - País)</label>
-            <select id="countrySelect" class="form-select">
-                <option value="">-- Selecciona --</option>
-                @foreach (var country in countries)
-                {
-                    <option value="@country.Name">@country.Name - @country.Capital</option>
-                }
-            </select>
+    <br />
+    <div class="row mb-9">
+        <div class="col-md-9">
+            <div class="mb-3">
+                <label for="countrySelect">Selecciona País (Estado - País)</label>
+                <br />
+                <select id="countrySelect" class="form-select">
+                    <option value="">-- Selecciona --</option>
+                    @foreach (var country in countries)
+                    {
+                        <option value="@country.Name">@country.Name - @country.Capital</option>
+                    }
+                </select>
+            </div>
+            <br />
+            <div class="mb-3">
+                <label for="flightSelect">Selecciona Vuelo</label>
+                <br />
+                <select id="flightSelect" class="form-select">
+                    <option value="">-- Selecciona Vuelo --</option>
+                    @foreach (var flight in flights)
+                    {
+                        <option value="@flight">@flight</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <h5 style="font-size:16px; margin-bottom:10px;">Estado de Asientos</h5>
+            <table style="width: auto; border-collapse: collapse;">
+                <tr>
+                    <td style="padding: 4px;">
+                        <div style="width:15px; height:15px; background-color:blue; display:inline-block;"></div>
+                    </td>
+                    <td style="font-size:14px; padding-left: 5px;">Libre</td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px;">
+                        <div style="width:15px; height:15px; background-color:green; display:inline-block;"></div>
+                    </td>
+                    <td style="font-size:14px; padding-left: 5px;">Vendido</td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px;">
+                        <div style="width:15px; height:15px; background-color:yellow; display:inline-block;"></div>
+                    </td>
+                    <td style="font-size:14px; padding-left: 5px;">Reserva</td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px;">
+                        <div style="width:15px; height:15px; background-color:red; display:inline-block;"></div>
+                    </td>
+                    <td style="font-size:14px; padding-left: 5px;">Devolución</td>
+                </tr>
+            </table>
+            <p style="font-size:14px; margin-top:8px;">Hacer click 2 veces en el asiento que vas a escoger</p>
         </div>
     </div>
 
-    <div class="row mb-3">
-        <div class="col-12">
-            <label for="flightSelect">Selecciona Vuelo</label>
-            <select id="flightSelect" class="form-select">
-                <option value="">-- Selecciona Vuelo --</option>
-                @foreach (var flight in flights)
-                {
-                    <option value="@flight">@flight</option>
-                }
-            </select>
-        </div>
-    </div>
 
     <hr />
     <h2>Mapa de Asientos</h2>
@@ -61,7 +94,6 @@
         }
     </div>
 
-    <!-- Modal para modificar el estado del asiento -->
     <div id="seatModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeSeatModal()">&times;</span>
@@ -82,18 +114,25 @@
                 Llegada: 20/Abr/2025
             </div>
         </div>
-        <div class="col-md-4">
-            <label>Origen / Destino:</label>
-            <div id="flightCities">
-                Origen: Ucrania (Kiev)<br />
-                Destino: Bolivia (Cochabamba)
-            </div>
-        </div>
     </div>
 </div>
 
 @section Scripts
 {
+    <script>
+        $(document).ready(function () {
+            $('#countrySelect').select2({
+                placeholder: "-- Selecciona --",
+                allowClear: true,
+                width: 'resolve'
+            });
+            $('#flightSelect').select2({
+                placeholder: "-- Selecciona Vuelo --",
+                allowClear: true,
+                width: 'resolve'
+            });
+        });
+    </script>
     <script>
         var pasajeros = {
             "P123456": "Juan Pérez",

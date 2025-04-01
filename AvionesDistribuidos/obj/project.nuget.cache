@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "KkPQOwdCaAU=",
+  "dgSpecHash": "z2eCfGb8xrw=",
   "success": true,
   "projectFilePath": "C:\\Users\\Dell\\Downloads\\Dsitribuidos\\Practica3Avion\\AvionesDistribuidos\\AvionesDistribuidos.csproj",
   "expectedPackageFiles": [
@@ -31,6 +31,7 @@
     "C:\\Users\\Dell\\.nuget\\packages\\microsoft.extensions.primitives\\8.0.0\\microsoft.extensions.primitives.8.0.0.nupkg.sha512",
     "C:\\Users\\Dell\\.nuget\\packages\\mono.texttemplating\\2.2.1\\mono.texttemplating.2.2.1.nupkg.sha512",
     "C:\\Users\\Dell\\.nuget\\packages\\nager.country\\4.0.0\\nager.country.4.0.0.nupkg.sha512",
+    "C:\\Users\\Dell\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
     "C:\\Users\\Dell\\.nuget\\packages\\system.codedom\\4.4.0\\system.codedom.4.4.0.nupkg.sha512",
     "C:\\Users\\Dell\\.nuget\\packages\\system.collections.immutable\\6.0.0\\system.collections.immutable.6.0.0.nupkg.sha512",
     "C:\\Users\\Dell\\.nuget\\packages\\system.composition\\6.0.0\\system.composition.6.0.0.nupkg.sha512",

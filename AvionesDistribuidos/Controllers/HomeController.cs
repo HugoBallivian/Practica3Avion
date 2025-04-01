@@ -1,8 +1,9 @@
 using AvionesDistribuidos.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using Nager.Country;
 using System.Linq;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace AvionesDistribuidos.Controllers
 {
@@ -15,16 +16,19 @@ namespace AvionesDistribuidos.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public IActionResult Index()                                                          
         {
-            var countryProvider = new CountryProvider();
-            var countries = countryProvider.GetCountries().ToList();
+            var jsonPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "country-by-continent.json");
+            var jsonData = System.IO.File.ReadAllText(jsonPath);
+            var countryJsonList = JsonConvert.DeserializeObject<List<CountryJson>>(jsonData);
 
-            var countryList = countries.Select(c => new CountryViewModel
+            var countryList = countryJsonList.Select(c => new CountryViewModel
             {
-                Name = c.CommonName,
-                Capital = "Sin información"
+                Name = c.country,
+                Capital = c.continent
             }).ToList();
+
+            ViewBag.Countries = countryList;
 
             var flights = new List<string>
             {
@@ -32,9 +36,7 @@ namespace AvionesDistribuidos.Controllers
                 "A-205 España(Madrid) - Argentina(Buenos Aires) 09:30 15/Abr/2025"
             };
 
-            ViewBag.Countries = countryList;
             ViewBag.Flights = flights;
-
 
             char fcRowStart = 'A';
             char fcRowEnd = 'F';
@@ -59,30 +61,31 @@ namespace AvionesDistribuidos.Controllers
             for (char row = econRowStart; row <= econRowEnd; row++)
             {
                 var seats = Enumerable.Range(econColStart, econColEnd - econColStart + 1)
-                    .Select(col => new Seat { SeatId = $"{row}{col.ToString("D2")}" })
-                    .ToList();
-                if (row == 'A' || row == 'F')
-                {
-                    seats = seats.Where(s => !s.SeatId.EndsWith("17")).ToList();
-                }
+                    .Select(col => {
+                        var seat = new Seat { SeatId = $"{row}{col.ToString("D2")}" };
+                        if ((row == 'A' || row == 'F') && seat.SeatId.EndsWith("10"))
+                        {
+                            seat.State = "empty";
+                        }
+                        return seat;
+                    }).ToList();
                 economyRows.Add(new SeatRow { RowLabel = row.ToString(), Seats = seats });
             }
 
             var seatConfig = new List<SeatConfiguration>
-    {
-        new SeatConfiguration
-        {
-            SectionName = "Primera Clase",
-            Rows = firstClassRows
-        },
-        new SeatConfiguration
-        {
-            SectionName = "Económica",
-            Rows = economyRows
-        }
-    };
+            {
+                new SeatConfiguration
+                {
+                    SectionName = "Primera Clase",
+                    Rows = firstClassRows
+                },
+                new SeatConfiguration
+                {
+                    SectionName = "Económica",
+                    Rows = economyRows
+                }
+            };
 
-            // Validación del total de asientos
             int totalAsientos = firstClassRows.Sum(r => r.Seats.Count) + economyRows.Sum(r => r.Seats.Count);
             if (totalAsientos < 8 || totalAsientos > 853)
             {
@@ -90,7 +93,6 @@ namespace AvionesDistribuidos.Controllers
             }
 
             ViewBag.SeatConfig = seatConfig;
-            // --- Resto del código y retorno de la vista ---
             return View();
         }
 

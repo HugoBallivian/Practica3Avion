@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "6ouStYHvM9Wzb8kfriRa1Zz7auEcjc6wHLNtgtvIzII=",
+  "Hash": "P9r51bAKTKwARZDXgxJsP22WDJH/W4B4Ibe9WcekqCY=",
   "Source": "AvionesDistribuidos",
   "BasePath": "_content/AvionesDistribuidos",
   "Mode": "Default",
@@ -72,6 +72,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\site.css"
+    },
+    {
+      "Identity": "C:\\Users\\Dell\\Downloads\\Dsitribuidos\\Practica3Avion\\AvionesDistribuidos\\wwwroot\\data\\country-by-continent.json",
+      "SourceId": "AvionesDistribuidos",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Dell\\Downloads\\Dsitribuidos\\Practica3Avion\\AvionesDistribuidos\\wwwroot\\",
+      "BasePath": "_content/AvionesDistribuidos",
+      "RelativePath": "data/country-by-continent.json",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\data\\country-by-continent.json"
     },
     {
       "Identity": "C:\\Users\\Dell\\Downloads\\Dsitribuidos\\Practica3Avion\\AvionesDistribuidos\\wwwroot\\favicon.ico",

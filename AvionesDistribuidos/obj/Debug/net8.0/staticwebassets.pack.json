@@ -9,6 +9,10 @@
       "PackagePath": "staticwebassets\\css\\site.css"
     },
     {
+      "Id": "C:\\Users\\Dell\\Downloads\\Dsitribuidos\\Practica3Avion\\AvionesDistribuidos\\wwwroot\\data\\country-by-continent.json",
+      "PackagePath": "staticwebassets\\data\\country-by-continent.json"
+    },
+    {
       "Id": "C:\\Users\\Dell\\Downloads\\Dsitribuidos\\Practica3Avion\\AvionesDistribuidos\\wwwroot\\favicon.ico",
       "PackagePath": "staticwebassets\\favicon.ico"
     },
