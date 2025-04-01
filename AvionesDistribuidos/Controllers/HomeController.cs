@@ -37,9 +37,9 @@ namespace AvionesDistribuidos.Controllers
 
 
             char fcRowStart = 'A';
-            char fcRowEnd = 'F'; 
+            char fcRowEnd = 'F';
             int fcColStart = 1;
-            int fcColEnd = 3;   
+            int fcColEnd = 3;
 
             var firstClassRows = new List<SeatRow>();
             for (char row = fcRowStart; row <= fcRowEnd; row++)
@@ -51,9 +51,9 @@ namespace AvionesDistribuidos.Controllers
             }
 
             char econRowStart = 'A';
-            char econRowEnd = 'F'; 
+            char econRowEnd = 'F';
             int econColStart = 4;
-            int econColEnd = 29;  
+            int econColEnd = 29;
 
             var economyRows = new List<SeatRow>();
             for (char row = econRowStart; row <= econRowEnd; row++)
@@ -61,25 +61,36 @@ namespace AvionesDistribuidos.Controllers
                 var seats = Enumerable.Range(econColStart, econColEnd - econColStart + 1)
                     .Select(col => new Seat { SeatId = $"{row}{col.ToString("D2")}" })
                     .ToList();
+                if (row == 'A' || row == 'F')
+                {
+                    seats = seats.Where(s => !s.SeatId.EndsWith("17")).ToList();
+                }
                 economyRows.Add(new SeatRow { RowLabel = row.ToString(), Seats = seats });
             }
 
             var seatConfig = new List<SeatConfiguration>
+    {
+        new SeatConfiguration
+        {
+            SectionName = "Primera Clase",
+            Rows = firstClassRows
+        },
+        new SeatConfiguration
+        {
+            SectionName = "Económica",
+            Rows = economyRows
+        }
+    };
+
+            // Validación del total de asientos
+            int totalAsientos = firstClassRows.Sum(r => r.Seats.Count) + economyRows.Sum(r => r.Seats.Count);
+            if (totalAsientos < 8 || totalAsientos > 853)
             {
-                new SeatConfiguration
-                {
-                    SectionName = "Primera Clase",
-                    Rows = firstClassRows
-                },
-                new SeatConfiguration
-                {
-                    SectionName = "Económica",
-                    Rows = economyRows
-                }
-            };
+                throw new Exception($"La configuración de asientos es inválida: total {totalAsientos} asientos. Debe estar entre 8 y 853.");
+            }
 
             ViewBag.SeatConfig = seatConfig;
-
+            // --- Resto del código y retorno de la vista ---
             return View();
         }
 

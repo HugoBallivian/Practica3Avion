@@ -8,12 +8,12 @@
 
     <div class="row mb-3">
         <div class="col-12">
-            <label for="countrySelect">Selecciona País (Ciudad - País)</label>
+            <label for="countrySelect">Selecciona País (Estado - País)</label>
             <select id="countrySelect" class="form-select">
                 <option value="">-- Selecciona --</option>
-                @foreach (var country in ViewBag.Countries as List<AvionesDistribuidos.Models.CountryViewModel>)
+                @foreach (var country in countries)
                 {
-                    <option value="@country.Name">@country.Capital - @country.Name</option>
+                    <option value="@country.Name">@country.Name - @country.Capital</option>
                 }
             </select>
         </div>
@@ -24,7 +24,7 @@
             <label for="flightSelect">Selecciona Vuelo</label>
             <select id="flightSelect" class="form-select">
                 <option value="">-- Selecciona Vuelo --</option>
-                @foreach(var flight in flights)
+                @foreach (var flight in flights)
                 {
                     <option value="@flight">@flight</option>
                 }
@@ -35,16 +35,16 @@
     <hr />
     <h2>Mapa de Asientos</h2>
     <div class="seat-container">
-        @foreach(var section in ViewBag.SeatConfig as List<AvionesDistribuidos.Models.SeatConfiguration>)
+        @foreach (var section in ViewBag.SeatConfig as List<AvionesDistribuidos.Models.SeatConfiguration>)
         {
             <div class="seat-section @(section.SectionName.Replace(" ", "").ToLower())">
-                @foreach(var row in section.Rows)
+                @foreach (var row in section.Rows)
                 {
                     <div class="seat-row">
                         <div class="row-label">@row.RowLabel</div>
-                        @foreach(var seat in row.Seats)
+                        @foreach (var seat in row.Seats)
                         {
-                            if(seat.State == "empty")
+                            if (seat.State == "empty")
                             {
                                 <div class="seat empty"></div>
                             }
@@ -61,13 +61,12 @@
         }
     </div>
 
+    <!-- Modal para modificar el estado del asiento -->
     <div id="seatModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeSeatModal()">&times;</span>
             <h3>Modificar Estado del Asiento <span id="modalSeatId"></span></h3>
-            <div id="modalBody">
-            </div>
-            <button onclick="saveSeatChange()" class="modal-save">Guardar</button>
+            <div id="modalBody"></div>
         </div>
     </div>
 
@@ -93,62 +92,110 @@
     </div>
 </div>
 
-<div id="seatModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeSeatModal()">&times;</span>
-        <h3>Modificar Estado del Asiento <span id="modalSeatId"></span></h3>
-        <div id="modalBody">
-        </div>
-        <button onclick="saveSeatChange()">Guardar</button>
-    </div>
-</div>
 @section Scripts
 {
     <script>
+        var pasajeros = {
+            "P123456": "Juan Pérez",
+            "P654321": "María García"
+        };
+
         var currentSeat = null;
         var currentSeatState = null;
-        var newSeatState = null;
 
         function openSeatModal(seatElement) {
             currentSeat = seatElement;
             currentSeatState = getSeatState(seatElement);
-            document.getElementById("modalSeatId").textContent = seatElement.getAttribute("data-seat");
+            var seatId = seatElement.getAttribute("data-seat");
+            document.getElementById("modalSeatId").textContent = seatId;
             var modalBody = document.getElementById("modalBody");
             modalBody.innerHTML = "";
 
-            // Según el estado actual se muestran las opciones válidas
+            modalBody.innerHTML += '<p style="text-align:left;"><strong>Asiento:</strong> ' + seatId + '</p>';
+            modalBody.innerHTML += '<p style="text-align:left;"><strong>Estado:</strong> ' + currentSeatState + '</p>';
+
             if (currentSeatState === "libre") {
-                modalBody.innerHTML += '<button onclick="setNewState(\'reserva\')" class="modal-btn reserva-btn">Reserva</button>';
-                modalBody.innerHTML += '<button onclick="setNewState(\'venta\')" class="modal-btn venta-btn">Venta</button>';
-            } else if (currentSeatState === "reserva") {
-                modalBody.innerHTML += '<button onclick="setNewState(\'venta\')" class="modal-btn venta-btn">Venta</button>';
-                modalBody.innerHTML += '<button onclick="setNewState(\'devolucion\')" class="modal-btn devolucion-btn">Devolución</button>';
-            } else if (currentSeatState === "venta") {
-                modalBody.innerHTML = "<p>Asiento vendido. No se permiten cambios.</p>";
-            } else if (currentSeatState === "devolucion") {
-                modalBody.innerHTML += '<button onclick="setNewState(\'libre\')" class="modal-btn libre-btn">Libre</button>';
+                modalBody.innerHTML += '<div id="passportSection" style="text-align:left; margin-bottom:10px;">' +
+                    '<label>Pasaporte:</label> ' +
+                    '<input type="text" id="passportInput" /> ' +
+                    '<button type="button" onclick="buscarPasajero()">Buscar</button>' +
+                    '</div>';
+                modalBody.innerHTML += '<div id="passengerSection" style="text-align:left; margin-bottom:10px;">' +
+                    '<label>Pasajero:</label> ' +
+                    '<input type="text" id="passengerInput" disabled />' +
+                    '</div>';
+            } else {
+                var passport = seatElement.getAttribute("data-passport") || "";
+                var passenger = seatElement.getAttribute("data-passenger") || "";
+                modalBody.innerHTML += '<div id="passportSection" style="text-align:left; margin-bottom:10px;">' +
+                    '<label>Pasaporte:</label> <span id="passportLabel">' + passport + '</span>' +
+                    '</div>';
+                modalBody.innerHTML += '<div id="passengerSection" style="text-align:left; margin-bottom:10px;">' +
+                    '<label>Pasajero:</label> <span id="passengerLabel">' + passenger + '</span>' +
+                    '</div>';
             }
+
+            modalBody.innerHTML += '<div id="stateButtons" style="text-align:center; margin-top:10px;">';
+            if (currentSeatState === "libre") {
+                modalBody.innerHTML += '<button type="button" class="modal-btn reserva-btn" style="display:block; width:100%; margin-bottom:10px;" onclick="changeSeatState(\'reserva\')">Reserva</button>';
+                modalBody.innerHTML += '<button type="button" class="modal-btn venta-btn" style="display:block; width:100%; margin-bottom:10px;" onclick="changeSeatState(\'venta\')">Venta</button>';
+            } else if (currentSeatState === "reserva") {
+                modalBody.innerHTML += '<button type="button" class="modal-btn venta-btn" style="display:block; width:100%; margin-bottom:10px;" onclick="changeSeatState(\'venta\')">Venta</button>';
+                modalBody.innerHTML += '<button type="button" class="modal-btn devolucion-btn" style="display:block; width:100%; margin-bottom:10px;" onclick="changeSeatState(\'devolucion\')">Devolución</button>';
+            } else if (currentSeatState === "venta") {
+                modalBody.innerHTML += '<p style="text-align:left;">El asiento se encuentra vendido. No se permiten cambios.</p>';
+            } else if (currentSeatState === "devolucion") {
+                modalBody.innerHTML += '<button type="button" class="modal-btn libre-btn" style="display:block; width:100%; margin-bottom:10px;" onclick="changeSeatState(\'libre\')">Libre</button>';
+            }
+            modalBody.innerHTML += '</div>';
+
             document.getElementById("seatModal").style.display = "block";
         }
 
-        function setNewState(state) {
-            newSeatState = state;
+        function buscarPasajero() {
+            var passport = document.getElementById("passportInput").value.trim();
+            var passengerInput = document.getElementById("passengerInput");
+            if (passport === "") {
+                alert("Ingrese un número de pasaporte.");
+                return;
+            }
+            if (pasajeros.hasOwnProperty(passport)) {
+                passengerInput.value = pasajeros[passport];
+                passengerInput.disabled = true;
+            } else {
+                passengerInput.value = "";
+                passengerInput.disabled = false;
+                alert("Pasaporte no encontrado. Ingrese el nombre del pasajero.");
+            }
         }
 
-        function saveSeatChange() {
-            if (newSeatState && currentSeat) {
-                currentSeat.classList.remove("libre", "reserva", "venta", "devolucion");
-                currentSeat.classList.add(newSeatState);
-                newSeatState = null;
-                currentSeat = null;
-                closeSeatModal();
-            } else {
-                alert("No se seleccionó un nuevo estado válido.");
+        function changeSeatState(newState) {
+            if (currentSeatState === "devolucion" && newState !== "libre") {
+                alert("Sólo se puede cambiar a Libre desde Devolución.");
+                return;
             }
+
+            if (currentSeatState === "libre" && (newState === "reserva" || newState === "venta")) {
+                var passport = document.getElementById("passportInput").value.trim();
+                var passenger = document.getElementById("passengerInput").value.trim();
+                if (passport === "" || passenger === "") {
+                    alert("Debe completar los campos de Pasaporte y Pasajero.");
+                    return;
+                }
+                currentSeat.setAttribute("data-passport", passport);
+                currentSeat.setAttribute("data-passenger", passenger);
+            }
+
+            currentSeat.classList.remove("libre", "reserva", "venta", "devolucion");
+            currentSeat.classList.add(newState);
+
+            closeSeatModal();
         }
 
         function closeSeatModal() {
             document.getElementById("seatModal").style.display = "none";
+            currentSeat = null;
+            currentSeatState = null;
         }
 
         function getSeatState(seatElement) {
