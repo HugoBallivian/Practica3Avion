@@ -1,4 +1,4 @@
-using AvionesDistribuidos.Models;
+Ôªøusing AvionesDistribuidos.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Linq;
@@ -33,7 +33,7 @@ namespace AvionesDistribuidos.Controllers
             var flights = new List<string>
             {
                 "B-101 Ucrania(Kiev) - Bolivia(Cochabamba) 18:55 20/Abr/2025",
-                "A-205 EspaÒa(Madrid) - Argentina(Buenos Aires) 09:30 15/Abr/2025"
+                "A-205 Espa√±a(Madrid) - Argentina(Buenos Aires) 09:30 15/Abr/2025"
             };
 
             ViewBag.Flights = flights;
@@ -81,7 +81,7 @@ namespace AvionesDistribuidos.Controllers
                 },
                 new SeatConfiguration
                 {
-                    SectionName = "EconÛmica",
+                    SectionName = "Econ√≥mica",
                     Rows = economyRows
                 }
             };
@@ -89,7 +89,7 @@ namespace AvionesDistribuidos.Controllers
             int totalAsientos = firstClassRows.Sum(r => r.Seats.Count) + economyRows.Sum(r => r.Seats.Count);
             if (totalAsientos < 8 || totalAsientos > 853)
             {
-                throw new Exception($"La configuraciÛn de asientos es inv·lida: total {totalAsientos} asientos. Debe estar entre 8 y 853.");
+                throw new Exception($"La configuraci√≥n de asientos es inv√°lida: total {totalAsientos} asientos. Debe estar entre 8 y 853.");
             }
 
             ViewBag.SeatConfig = seatConfig;

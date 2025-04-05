@@ -3,13 +3,17 @@
     var countries = ViewBag.Countries as List<AvionesDistribuidos.Models.CountryViewModel>;
     var flights = ViewBag.Flights as List<string>;
 }
+
+<!-- No se toca el CSS que ya está en otro archivo -->
+
 <div class="container">
     <h1>Reservación de Vuelos</h1>
     <br />
     <div class="row mb-9">
         <div class="col-md-9">
+            <!-- Campo "Estoy comprando desde:" (no afecta el filtrado) -->
             <div class="mb-3">
-                <label for="countrySelect">Selecciona País (Estado - País)</label>
+                <label for="countrySelect">Estoy comprando desde:</label>
                 <br />
                 <select id="countrySelect" class="form-select">
                     <option value="">-- Selecciona --</option>
@@ -18,8 +22,36 @@
                         <option value="@country.Name">@country.Name - @country.Capital</option>
                     }
                 </select>
+                <span id="currentDateTime" style="margin-left:10px; font-weight:bold;"></span>
+            </div>
+            <!-- Filtros (sin efecto en el select de vuelos) -->
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="departureSelect">País de Salida</label>
+                    <br />
+                    <select id="departureSelect" class="form-select">
+                        <option value="">-- Selecciona País de Salida --</option>
+                        <option value="Ucrania(Kiev)">Ucrania(Kiev)</option>
+                        <option value="España(Madrid)">España(Madrid)</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="destinationSelect">Destino</label>
+                    <br />
+                    <select id="destinationSelect" class="form-select">
+                        <option value="">-- Selecciona Destino --</option>
+                        <option value="Bolivia(Cochabamba)">Bolivia(Cochabamba)</option>
+                        <option value="Argentina(Buenos Aires)">Argentina(Buenos Aires)</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="dateSelect">Fecha</label>
+                    <br />
+                    <input type="date" id="dateSelect" class="form-control" min="2025-03-01" max="2025-12-31" />
+                </div>
             </div>
             <br />
+            <!-- Select de vuelos, habilitado siempre, sin filtrado -->
             <div class="mb-3">
                 <label for="flightSelect">Selecciona Vuelo</label>
                 <br />
@@ -64,7 +96,6 @@
         </div>
     </div>
 
-
     <hr />
     <h2>Mapa de Asientos</h2>
     <div class="seat-container">
@@ -94,11 +125,75 @@
         }
     </div>
 
+    <!-- Modal NORMAL para cambiar estado (si no está en venta) -->
     <div id="seatModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeSeatModal()">&times;</span>
             <h3>Modificar Estado del Asiento <span id="modalSeatId"></span></h3>
             <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Modal NUEVO (ticketModal) para mostrar un ticket "bonito" si el asiento ya está vendido -->
+    <div id="ticketModal" class="modal">
+        <div class="modal-content" id="ticketModalContent" style="text-align:left;">
+            <span class="close" onclick="closeTicketModal()">&times;</span>
+
+            <!-- Aquí diseñamos un ticket estilo "boarding pass" más bonito -->
+            <div style="border: 2px dashed #aaa; padding: 15px; border-radius: 6px; font-family: sans-serif;">
+
+                <div style="text-align:center; margin-bottom: 10px;">
+                    <h2 style="margin:0; font-size:1.4rem; font-weight:bold;">BOARDING PASS</h2>
+                    <p style="margin:0; font-size:0.9rem;">(Demostración de Ticket)</p>
+                </div>
+
+                <hr style="margin:10px 0; border:none; border-top:1px solid #ccc;" />
+
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <div>
+                        <span style="font-weight:bold;">Pasajero:</span>
+                        <span id="tkPassengerName"></span>
+                    </div>
+                    <div>
+                        <span style="font-weight:bold;">Vuelo:</span>
+                        <span id="tkFlightCode"></span>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <div>
+                        <span style="font-weight:bold;">Origen:</span>
+                        <span id="tkFrom"></span>
+                    </div>
+                    <div>
+                        <span style="font-weight:bold;">Destino:</span>
+                        <span id="tkTo"></span>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <div>
+                        <span style="font-weight:bold;">Fecha:</span>
+                        <span id="tkDate"></span>
+                    </div>
+                    <div>
+                        <span style="font-weight:bold;">Hora:</span>
+                        <span id="tkTime"></span>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <div>
+                        <span style="font-weight:bold;">Asiento:</span>
+                        <span id="tkSeat"></span>
+                    </div>
+                </div>
+
+                <hr style="margin:10px 0; border:none; border-top:1px solid #ccc;" />
+                <p style="font-size:0.85rem; margin:0; text-align:center;">
+                    Gracias por viajar con nosotros. ¡Buen viaje!
+                </p>
+            </div>
         </div>
     </div>
 
@@ -120,18 +215,61 @@
 @section Scripts
 {
     <script>
+        // Inicializar selects con select2
         $(document).ready(function () {
             $('#countrySelect').select2({
                 placeholder: "-- Selecciona --",
                 allowClear: true,
                 width: 'resolve'
             });
+            $('#departureSelect').select2({
+                placeholder: "-- Selecciona País de Salida --",
+                allowClear: true,
+                width: 'resolve'
+            });
+            $('#destinationSelect').select2({
+                placeholder: "-- Selecciona Destino --",
+                allowClear: true,
+                width: 'resolve'
+            });
+            // Se habilita sin filtrado
             $('#flightSelect').select2({
                 placeholder: "-- Selecciona Vuelo --",
                 allowClear: true,
                 width: 'resolve'
             });
         });
+    </script>
+    <script>
+        // Reloj en tiempo real
+        function updateDateTime() {
+            var now = new Date();
+            var options = {
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', second: '2-digit'
+            };
+            document.getElementById("currentDateTime").textContent = now.toLocaleDateString('es-ES', options);
+        }
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+    </script>
+    <script>
+        // Parsear datos de vuelo
+        // Ej: "B-101 Ucrania(Kiev) - Bolivia(Cochabamba) 18:55 20/Abr/2025"
+        function parseFlightData(flightString) {
+            var flightRegex = /^(?<code>\S+)\s+(?<departure>.+?)\s+-\s+(?<destination>.+?)\s+(?<time>\S+)\s+(?<date>\S+)$/;
+            var match = flightString.match(flightRegex);
+            if (match && match.groups) {
+                return {
+                    code: match.groups.code,
+                    departure: match.groups.departure,
+                    destination: match.groups.destination,
+                    time: match.groups.time,
+                    date: match.groups.date
+                };
+            }
+            return null;
+        }
     </script>
     <script>
         var pasajeros = {
@@ -145,6 +283,14 @@
         function openSeatModal(seatElement) {
             currentSeat = seatElement;
             currentSeatState = getSeatState(seatElement);
+
+            // Si el asiento ya está en "venta" (verde), mostramos el ticket en lugar del modal normal
+            if (currentSeatState === "venta") {
+                openTicketModal();
+                return;
+            }
+
+            // Caso contrario, abrimos el modal normal para cambiar estado
             var seatId = seatElement.getAttribute("data-seat");
             document.getElementById("modalSeatId").textContent = seatId;
             var modalBody = document.getElementById("modalBody");
@@ -163,18 +309,20 @@
                     '<label>Pasajero:</label> ' +
                     '<input type="text" id="passengerInput" disabled />' +
                     '</div>';
-            } else {
-                var passport = seatElement.getAttribute("data-passport") || "";
-                var passenger = seatElement.getAttribute("data-passenger") || "";
-                modalBody.innerHTML += '<div id="passportSection" style="text-align:left; margin-bottom:10px;">' +
-                    '<label>Pasaporte:</label> <span id="passportLabel">' + passport + '</span>' +
-                    '</div>';
-                modalBody.innerHTML += '<div id="passengerSection" style="text-align:left; margin-bottom:10px;">' +
-                    '<label>Pasajero:</label> <span id="passengerLabel">' + passenger + '</span>' +
-                    '</div>';
+            } else if (currentSeatState === "reserva") {
+                var passportVal = seatElement.getAttribute("data-passport") || "";
+                var passengerVal = seatElement.getAttribute("data-passenger") || "";
+                modalBody.innerHTML += '<p style="text-align:left;">Pasaporte: ' + passportVal + '</p>';
+                modalBody.innerHTML += '<p style="text-align:left;">Pasajero: ' + passengerVal + '</p>';
+            } else if (currentSeatState === "devolucion") {
+                var passportVal = seatElement.getAttribute("data-passport") || "";
+                var passengerVal = seatElement.getAttribute("data-passenger") || "";
+                modalBody.innerHTML += '<p style="text-align:left;">Pasaporte: ' + passportVal + '</p>';
+                modalBody.innerHTML += '<p style="text-align:left;">Pasajero: ' + passengerVal + '</p>';
             }
 
             modalBody.innerHTML += '<div id="stateButtons" style="text-align:center; margin-top:10px;">';
+
             if (currentSeatState === "libre") {
                 modalBody.innerHTML += '<button type="button" class="modal-btn reserva-btn" style="display:block; width:100%; margin-bottom:10px;" onclick="changeSeatState(\'reserva\')">Reserva</button>';
                 modalBody.innerHTML += '<button type="button" class="modal-btn venta-btn" style="display:block; width:100%; margin-bottom:10px;" onclick="changeSeatState(\'venta\')">Venta</button>';
@@ -182,7 +330,7 @@
                 modalBody.innerHTML += '<button type="button" class="modal-btn venta-btn" style="display:block; width:100%; margin-bottom:10px;" onclick="changeSeatState(\'venta\')">Venta</button>';
                 modalBody.innerHTML += '<button type="button" class="modal-btn devolucion-btn" style="display:block; width:100%; margin-bottom:10px;" onclick="changeSeatState(\'devolucion\')">Devolución</button>';
             } else if (currentSeatState === "venta") {
-                modalBody.innerHTML += '<p style="text-align:left;">El asiento se encuentra vendido. No se permiten cambios.</p>';
+                // En teoría no deberíamos llegar aquí, porque si es "venta", se muestra el ticket
             } else if (currentSeatState === "devolucion") {
                 modalBody.innerHTML += '<button type="button" class="modal-btn libre-btn" style="display:block; width:100%; margin-bottom:10px;" onclick="changeSeatState(\'libre\')">Libre</button>';
             }
@@ -225,14 +373,58 @@
                 currentSeat.setAttribute("data-passenger", passenger);
             }
 
+            // Cambiar la clase (estado)
             currentSeat.classList.remove("libre", "reserva", "venta", "devolucion");
             currentSeat.classList.add(newState);
 
-            closeSeatModal();
+            // Si ahora es venta, cerramos el seatModal y abrimos el ticket
+            if (newState === "venta") {
+                closeSeatModal();
+                openTicketModal();
+            } else {
+                closeSeatModal();
+            }
+        }
+
+        // Mostrar el ticketModal si el asiento está en venta
+        function openTicketModal() {
+            // Tomamos los datos del vuelo seleccionado
+            var selectedFlight = document.getElementById("flightSelect").value;
+            if (!selectedFlight) {
+                alert("No se ha seleccionado un vuelo. Por favor, selecciona uno.");
+                return;
+            }
+            var flightData = parseFlightData(selectedFlight);
+            if (!flightData) {
+                alert("El formato del vuelo no es válido.");
+                return;
+            }
+
+            // Tomamos datos del pasajero
+            var passengerName = currentSeat.getAttribute("data-passenger") || "Sin nombre";
+            var seatId = currentSeat.getAttribute("data-seat");
+
+            // Llenamos el ticket
+            document.getElementById("tkPassengerName").innerText = passengerName;
+            document.getElementById("tkFlightCode").innerText = flightData.code;
+            document.getElementById("tkFrom").innerText = flightData.departure;
+            document.getElementById("tkTo").innerText = flightData.destination;
+            document.getElementById("tkDate").innerText = flightData.date;
+            document.getElementById("tkTime").innerText = flightData.time;
+            document.getElementById("tkSeat").innerText = seatId;
+
+            // Mostramos el modal del ticket
+            document.getElementById("ticketModal").style.display = "block";
         }
 
         function closeSeatModal() {
             document.getElementById("seatModal").style.display = "none";
+            currentSeat = null;
+            currentSeatState = null;
+        }
+
+        function closeTicketModal() {
+            document.getElementById("ticketModal").style.display = "none";
             currentSeat = null;
             currentSeatState = null;
         }
@@ -246,9 +438,13 @@
         }
 
         window.onclick = function (event) {
-            var modal = document.getElementById("seatModal");
-            if (event.target == modal) {
+            var modal1 = document.getElementById("seatModal");
+            var modal2 = document.getElementById("ticketModal");
+            if (event.target == modal1) {
                 closeSeatModal();
+            }
+            if (event.target == modal2) {
+                closeTicketModal();
             }
         }
     </script>
