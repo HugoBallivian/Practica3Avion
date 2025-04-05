@@ -4,14 +4,12 @@
     var flights = ViewBag.Flights as List<string>;
 }
 
-<!-- No se toca el CSS que ya está en otro archivo -->
 
 <div class="container">
     <h1>Reservación de Vuelos</h1>
     <br />
     <div class="row mb-9">
         <div class="col-md-9">
-            <!-- Campo "Estoy comprando desde:" (no afecta el filtrado) -->
             <div class="mb-3">
                 <label for="countrySelect">Estoy comprando desde:</label>
                 <br />
@@ -24,7 +22,6 @@
                 </select>
                 <span id="currentDateTime" style="margin-left:10px; font-weight:bold;"></span>
             </div>
-            <!-- Filtros (sin efecto en el select de vuelos) -->
             <div class="row mb-3">
                 <div class="col-md-4">
                     <label for="departureSelect">País de Salida</label>
@@ -51,7 +48,6 @@
                 </div>
             </div>
             <br />
-            <!-- Select de vuelos, habilitado siempre, sin filtrado -->
             <div class="mb-3">
                 <label for="flightSelect">Selecciona Vuelo</label>
                 <br />
@@ -125,7 +121,6 @@
         }
     </div>
 
-    <!-- Modal NORMAL para cambiar estado (si no está en venta) -->
     <div id="seatModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeSeatModal()">&times;</span>
@@ -134,12 +129,10 @@
         </div>
     </div>
 
-    <!-- Modal NUEVO (ticketModal) para mostrar un ticket "bonito" si el asiento ya está vendido -->
     <div id="ticketModal" class="modal">
         <div class="modal-content" id="ticketModalContent" style="text-align:left;">
             <span class="close" onclick="closeTicketModal()">&times;</span>
 
-            <!-- Aquí diseñamos un ticket estilo "boarding pass" más bonito -->
             <div style="border: 2px dashed #aaa; padding: 15px; border-radius: 6px; font-family: sans-serif;">
 
                 <div style="text-align:center; margin-bottom: 10px;">
@@ -215,7 +208,6 @@
 @section Scripts
 {
     <script>
-        // Inicializar selects con select2
         $(document).ready(function () {
             $('#countrySelect').select2({
                 placeholder: "-- Selecciona --",
@@ -232,7 +224,6 @@
                 allowClear: true,
                 width: 'resolve'
             });
-            // Se habilita sin filtrado
             $('#flightSelect').select2({
                 placeholder: "-- Selecciona Vuelo --",
                 allowClear: true,
@@ -241,7 +232,6 @@
         });
     </script>
     <script>
-        // Reloj en tiempo real
         function updateDateTime() {
             var now = new Date();
             var options = {
@@ -254,8 +244,6 @@
         updateDateTime();
     </script>
     <script>
-        // Parsear datos de vuelo
-        // Ej: "B-101 Ucrania(Kiev) - Bolivia(Cochabamba) 18:55 20/Abr/2025"
         function parseFlightData(flightString) {
             var flightRegex = /^(?<code>\S+)\s+(?<departure>.+?)\s+-\s+(?<destination>.+?)\s+(?<time>\S+)\s+(?<date>\S+)$/;
             var match = flightString.match(flightRegex);
@@ -284,13 +272,11 @@
             currentSeat = seatElement;
             currentSeatState = getSeatState(seatElement);
 
-            // Si el asiento ya está en "venta" (verde), mostramos el ticket en lugar del modal normal
             if (currentSeatState === "venta") {
                 openTicketModal();
                 return;
             }
 
-            // Caso contrario, abrimos el modal normal para cambiar estado
             var seatId = seatElement.getAttribute("data-seat");
             document.getElementById("modalSeatId").textContent = seatId;
             var modalBody = document.getElementById("modalBody");
@@ -330,7 +316,6 @@
                 modalBody.innerHTML += '<button type="button" class="modal-btn venta-btn" style="display:block; width:100%; margin-bottom:10px;" onclick="changeSeatState(\'venta\')">Venta</button>';
                 modalBody.innerHTML += '<button type="button" class="modal-btn devolucion-btn" style="display:block; width:100%; margin-bottom:10px;" onclick="changeSeatState(\'devolucion\')">Devolución</button>';
             } else if (currentSeatState === "venta") {
-                // En teoría no deberíamos llegar aquí, porque si es "venta", se muestra el ticket
             } else if (currentSeatState === "devolucion") {
                 modalBody.innerHTML += '<button type="button" class="modal-btn libre-btn" style="display:block; width:100%; margin-bottom:10px;" onclick="changeSeatState(\'libre\')">Libre</button>';
             }
@@ -377,7 +362,6 @@
             currentSeat.classList.remove("libre", "reserva", "venta", "devolucion");
             currentSeat.classList.add(newState);
 
-            // Si ahora es venta, cerramos el seatModal y abrimos el ticket
             if (newState === "venta") {
                 closeSeatModal();
                 openTicketModal();
@@ -386,9 +370,7 @@
             }
         }
 
-        // Mostrar el ticketModal si el asiento está en venta
         function openTicketModal() {
-            // Tomamos los datos del vuelo seleccionado
             var selectedFlight = document.getElementById("flightSelect").value;
             if (!selectedFlight) {
                 alert("No se ha seleccionado un vuelo. Por favor, selecciona uno.");
@@ -400,11 +382,9 @@
                 return;
             }
 
-            // Tomamos datos del pasajero
             var passengerName = currentSeat.getAttribute("data-passenger") || "Sin nombre";
             var seatId = currentSeat.getAttribute("data-seat");
 
-            // Llenamos el ticket
             document.getElementById("tkPassengerName").innerText = passengerName;
             document.getElementById("tkFlightCode").innerText = flightData.code;
             document.getElementById("tkFrom").innerText = flightData.departure;
@@ -413,7 +393,6 @@
             document.getElementById("tkTime").innerText = flightData.time;
             document.getElementById("tkSeat").innerText = seatId;
 
-            // Mostramos el modal del ticket
             document.getElementById("ticketModal").style.display = "block";
         }
 
