@@ -1,21 +1,27 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AvionesDistribuidos.Models
 {
+    [Table("Pais")]
     public class Pais
     {
         [Key]
-        public int Id_Pais { get; set; }
+        [Column("id_pais")]
+        public int Id { get; set; }
 
         [Required]
         [MaxLength(100)]
+        [Column("nombre")]
         public string Nombre { get; set; }
 
         [Required]
         [MaxLength(3)]
-        public string Codigo_Iso { get; set; }
+        [Column("codigo_iso")]
+        public string CodigoIso { get; set; }
 
+        // Relación uno a muchos: un país tiene varias ciudades
         public ICollection<Ciudad> Ciudades { get; set; }
     }
 }

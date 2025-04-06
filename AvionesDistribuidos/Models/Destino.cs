@@ -3,24 +3,28 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AvionesDistribuidos.Models
 {
+    [Table("Destino")]
     public class Destino
     {
         [Key]
-        public int Id_Destino { get; set; }
+        [Column("id_destino")]
+        public int Id { get; set; }
 
         [Required]
-        public int Id_Ciudad { get; set; }
+        [Column("id_ciudad")]
+        public int CiudadId { get; set; }
 
         [Required]
         [MaxLength(150)]
+        [Column("aeropuerto")]
         public string Aeropuerto { get; set; }
 
         [Required]
         [MaxLength(50)]
-        public string Descripcion_Corta { get; set; }
+        [Column("descripcion_corta")]
+        public string descripcion_corta { get; set; }
 
-        // Propiedad de navegación
-        [ForeignKey("Id_Ciudad")]
+        [ForeignKey("CiudadId")]
         public Ciudad Ciudad { get; set; }
     }
 }

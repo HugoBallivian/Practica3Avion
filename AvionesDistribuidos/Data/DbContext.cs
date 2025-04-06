@@ -20,11 +20,14 @@ namespace AvionesDistribuidos.Data
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Pasajero>().ToTable("Pasajero");
-                                                          
+
+            // Mapeo de la entidad Destino a la tabla "Destino"
+            modelBuilder.Entity<Destino>().ToTable("Destino");
+
             modelBuilder.Entity<Ciudad>()
                 .HasOne(c => c.Pais)
                 .WithMany(p => p.Ciudades)
-                .HasForeignKey(c => c.Id_Pais);
+                .HasForeignKey(c => c.PaisId);
         }
     }
 }

@@ -22,7 +22,6 @@ namespace AvionesDistribuidos.Controllers
 
         public IActionResult Index()
         {
-            // Cargar información de países desde archivo JSON
             var jsonPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "country-by-continent.json");
             var jsonData = System.IO.File.ReadAllText(jsonPath);
             var countryJsonList = JsonConvert.DeserializeObject<List<CountryJson>>(jsonData);
@@ -34,7 +33,6 @@ namespace AvionesDistribuidos.Controllers
             }).ToList();
             ViewBag.Countries = countryList;
 
-            // Lista de vuelos (ejemplo estático)
             var flights = new List<string>
             {
                 "B-101 Ucrania(Kiev) - Bolivia(Cochabamba) 18:55 20/Abr/2025",
@@ -42,7 +40,10 @@ namespace AvionesDistribuidos.Controllers
             };
             ViewBag.Flights = flights;
 
-            // Configuración de asientos (Primera Clase y Económica)
+            // Consultar destinos para llenar los select usando descripcion_corta
+            var destinosList = _context.Destinos.ToList();
+            ViewBag.Destinos = destinosList;
+
             char fcRowStart = 'A';
             char fcRowEnd = 'F';
             int fcColStart = 1;
@@ -97,19 +98,15 @@ namespace AvionesDistribuidos.Controllers
             }
             ViewBag.SeatConfig = seatConfig;
 
-            // CONSULTA: Cargar la lista de pasajeros desde la base de datos
             var pasajerosList = _context.Pasajeros.ToList();
-            // Convertir a diccionario: clave "P" + NumeroPasaporte y valor NombreCompleto
             var pasajerosDict = pasajerosList.ToDictionary(
                 p => "P" + p.numero_pasaporte.ToString(),
                 p => p.nombre_completo);
-            // Enviar el diccionario serializado a JSON al View (para datos iniciales, si es necesario)
             ViewBag.Pasajeros = JsonConvert.SerializeObject(pasajerosDict);
 
             return View();
         }
 
-        // Endpoint exclusivo para buscar el pasajero sin inserción.
         [HttpPost]
         public IActionResult BuscarPasajero([FromForm] string passport)
         {
@@ -133,7 +130,6 @@ namespace AvionesDistribuidos.Controllers
             }
         }
 
-        // Este método se puede seguir utilizando para la validación/inserción al cambiar estado
         [HttpPost]
         public IActionResult ValidarPasajero([FromForm] string passport, [FromForm] string passenger)
         {
