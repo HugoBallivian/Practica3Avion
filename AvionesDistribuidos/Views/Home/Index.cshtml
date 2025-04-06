@@ -4,7 +4,6 @@
     var flights = ViewBag.Flights as List<string>;
 }
 
-
 <div class="container">
     <h1>Reservación de Vuelos</h1>
     <br />
@@ -132,16 +131,12 @@
     <div id="ticketModal" class="modal">
         <div class="modal-content" id="ticketModalContent" style="text-align:left;">
             <span class="close" onclick="closeTicketModal()">&times;</span>
-
             <div style="border: 2px dashed #aaa; padding: 15px; border-radius: 6px; font-family: sans-serif;">
-
                 <div style="text-align:center; margin-bottom: 10px;">
                     <h2 style="margin:0; font-size:1.4rem; font-weight:bold;">BOARDING PASS</h2>
                     <p style="margin:0; font-size:0.9rem;">(Demostración de Ticket)</p>
                 </div>
-
                 <hr style="margin:10px 0; border:none; border-top:1px solid #ccc;" />
-
                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
                     <div>
                         <span style="font-weight:bold;">Pasajero:</span>
@@ -152,7 +147,6 @@
                         <span id="tkFlightCode"></span>
                     </div>
                 </div>
-
                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
                     <div>
                         <span style="font-weight:bold;">Origen:</span>
@@ -163,7 +157,6 @@
                         <span id="tkTo"></span>
                     </div>
                 </div>
-
                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
                     <div>
                         <span style="font-weight:bold;">Fecha:</span>
@@ -174,14 +167,12 @@
                         <span id="tkTime"></span>
                     </div>
                 </div>
-
                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
                     <div>
                         <span style="font-weight:bold;">Asiento:</span>
                         <span id="tkSeat"></span>
                     </div>
                 </div>
-
                 <hr style="margin:10px 0; border:none; border-top:1px solid #ccc;" />
                 <p style="font-size:0.85rem; margin:0; text-align:center;">
                     Gracias por viajar con nosotros. ¡Buen viaje!
@@ -260,11 +251,8 @@
         }
     </script>
     <script>
-        var pasajeros = {
-            "P123456": "Juan Pérez",
-            "P654321": "María García"
-        };
-
+        // La variable 'pasajeros' se carga desde la base de datos (datos iniciales, si es necesario)
+        var pasajeros = @Html.Raw(ViewBag.Pasajeros);
         var currentSeat = null;
         var currentSeatState = null;
 
@@ -293,14 +281,9 @@
                     '</div>';
                 modalBody.innerHTML += '<div id="passengerSection" style="text-align:left; margin-bottom:10px;">' +
                     '<label>Pasajero:</label> ' +
-                    '<input type="text" id="passengerInput" disabled />' +
+                    '<input type="text" id="passengerInput" disabled /> ' +
                     '</div>';
-            } else if (currentSeatState === "reserva") {
-                var passportVal = seatElement.getAttribute("data-passport") || "";
-                var passengerVal = seatElement.getAttribute("data-passenger") || "";
-                modalBody.innerHTML += '<p style="text-align:left;">Pasaporte: ' + passportVal + '</p>';
-                modalBody.innerHTML += '<p style="text-align:left;">Pasajero: ' + passengerVal + '</p>';
-            } else if (currentSeatState === "devolucion") {
+            } else if (currentSeatState === "reserva" || currentSeatState === "devolucion") {
                 var passportVal = seatElement.getAttribute("data-passport") || "";
                 var passengerVal = seatElement.getAttribute("data-passenger") || "";
                 modalBody.innerHTML += '<p style="text-align:left;">Pasaporte: ' + passportVal + '</p>';
@@ -308,14 +291,12 @@
             }
 
             modalBody.innerHTML += '<div id="stateButtons" style="text-align:center; margin-top:10px;">';
-
             if (currentSeatState === "libre") {
                 modalBody.innerHTML += '<button type="button" class="modal-btn reserva-btn" style="display:block; width:100%; margin-bottom:10px;" onclick="changeSeatState(\'reserva\')">Reserva</button>';
                 modalBody.innerHTML += '<button type="button" class="modal-btn venta-btn" style="display:block; width:100%; margin-bottom:10px;" onclick="changeSeatState(\'venta\')">Venta</button>';
             } else if (currentSeatState === "reserva") {
                 modalBody.innerHTML += '<button type="button" class="modal-btn venta-btn" style="display:block; width:100%; margin-bottom:10px;" onclick="changeSeatState(\'venta\')">Venta</button>';
                 modalBody.innerHTML += '<button type="button" class="modal-btn devolucion-btn" style="display:block; width:100%; margin-bottom:10px;" onclick="changeSeatState(\'devolucion\')">Devolución</button>';
-            } else if (currentSeatState === "venta") {
             } else if (currentSeatState === "devolucion") {
                 modalBody.innerHTML += '<button type="button" class="modal-btn libre-btn" style="display:block; width:100%; margin-bottom:10px;" onclick="changeSeatState(\'libre\')">Libre</button>';
             }
@@ -324,6 +305,7 @@
             document.getElementById("seatModal").style.display = "block";
         }
 
+        // Función para buscar el pasajero en la base de datos cuando se presiona el botón "Buscar"
         function buscarPasajero() {
             var passport = document.getElementById("passportInput").value.trim();
             var passengerInput = document.getElementById("passengerInput");
@@ -331,16 +313,30 @@
                 alert("Ingrese un número de pasaporte.");
                 return;
             }
-            if (pasajeros.hasOwnProperty(passport)) {
-                passengerInput.value = pasajeros[passport];
-                passengerInput.disabled = true;
-            } else {
-                passengerInput.value = "";
-                passengerInput.disabled = false;
-                alert("Pasaporte no encontrado. Ingrese el nombre del pasajero.");
-            }
+            // Realizamos el llamado AJAX al endpoint BuscarPasajero para solo hacer un SELECT
+            $.ajax({
+                url: '@Url.Action("BuscarPasajero", "Home")',
+                type: 'POST',
+                data: { passport: passport },
+                success: function (response) {
+                    if (response.success) {
+                        // Si se encontró, se llena el campo pasajero y se deshabilita
+                        passengerInput.value = response.passenger;
+                        passengerInput.disabled = true;
+                    } else {
+                        // Si no se encontró, se limpia el campo y se habilita para que el usuario ingrese el nombre
+                        passengerInput.value = "";
+                        passengerInput.disabled = false;
+                        alert("Pasaporte no encontrado. Ingrese el nombre del pasajero.");
+                    }
+                },
+                error: function () {
+                    alert("Error al buscar el pasajero.");
+                }
+            });
         }
 
+        // Para el cambio de estado (reserva o venta) se mantiene la validación/inserción
         function changeSeatState(newState) {
             if (currentSeatState === "devolucion" && newState !== "libre") {
                 alert("Sólo se puede cambiar a Libre desde Devolución.");
@@ -354,19 +350,44 @@
                     alert("Debe completar los campos de Pasaporte y Pasajero.");
                     return;
                 }
-                currentSeat.setAttribute("data-passport", passport);
-                currentSeat.setAttribute("data-passenger", passenger);
+                $.ajax({
+                    url: '@Url.Action("ValidarPasajero", "Home")',
+                    type: 'POST',
+                    data: { passport: passport, passenger: passenger },
+                    success: function (response) {
+                        if (response.success) {
+                            // Actualizar el campo pasajero y los atributos del asiento
+                            document.getElementById("passengerInput").value = response.passenger;
+                            currentSeat.setAttribute("data-passport", passport);
+                            currentSeat.setAttribute("data-passenger", response.passenger);
+                            // Cambiar el estado del asiento
+                            currentSeat.classList.remove("libre", "reserva", "venta", "devolucion");
+                            currentSeat.classList.add(newState);
+                            if (newState === "venta") {
+                                closeSeatModal();
+                                openTicketModal();
+                            } else {
+                                closeSeatModal();
+                            }
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function () {
+                        alert("Error al validar el pasajero.");
+                    }
+                });
             }
-
-            // Cambiar la clase (estado)
-            currentSeat.classList.remove("libre", "reserva", "venta", "devolucion");
-            currentSeat.classList.add(newState);
-
-            if (newState === "venta") {
-                closeSeatModal();
-                openTicketModal();
-            } else {
-                closeSeatModal();
+            else {
+                // Para otros casos, solo se cambia el estado sin validación/inserción
+                currentSeat.classList.remove("libre", "reserva", "venta", "devolucion");
+                currentSeat.classList.add(newState);
+                if (newState === "venta") {
+                    closeSeatModal();
+                    openTicketModal();
+                } else {
+                    closeSeatModal();
+                }
             }
         }
 
@@ -381,10 +402,8 @@
                 alert("El formato del vuelo no es válido.");
                 return;
             }
-
             var passengerName = currentSeat.getAttribute("data-passenger") || "Sin nombre";
             var seatId = currentSeat.getAttribute("data-seat");
-
             document.getElementById("tkPassengerName").innerText = passengerName;
             document.getElementById("tkFlightCode").innerText = flightData.code;
             document.getElementById("tkFrom").innerText = flightData.departure;
@@ -392,7 +411,6 @@
             document.getElementById("tkDate").innerText = flightData.date;
             document.getElementById("tkTime").innerText = flightData.time;
             document.getElementById("tkSeat").innerText = seatId;
-
             document.getElementById("ticketModal").style.display = "block";
         }
 
