@@ -208,7 +208,6 @@
 {
         < <script>
               $(document).ready(function () {
-                  // Inicializa los selects con Select2 para que sean buscables.
                   $('#countrySelect').select2({
                       placeholder: "-- Selecciona --",
                       allowClear: true,
@@ -230,17 +229,14 @@
                       width: 'resolve'
                   });
 
-                  // Inicialmente, el select de vuelos se deshabilita.
                   $('#flightSelect').prop("disabled", true);
 
-                  // Evento para el botón “Cargar Vuelos”
                   $('#loadFlightsButton').click(function () {
                       // Obtiene los valores de los campos.
                       var departure = $('#departureSelect').val();
                       var destination = $('#destinationSelect').val();
                       var date = $('#dateSelect').val();
 
-                      // Si no se ingresa ningún criterio, se alerta al usuario.
                       if (departure === "" && destination === "" && date === "") {
                           alert("Ingrese al menos un criterio de búsqueda (País de Salida y Destino, o Fecha).");
                           return;
@@ -288,7 +284,6 @@
               setInterval(updateDateTime, 1000);
               updateDateTime();
 
-              // Función auxiliar para parsear la cadena del vuelo (si se necesita en otros módulos).
               function parseFlightData(flightString) {
                   var flightRegex = /^(?<code>\S+)\s+(?<departure>.+?)\s+-\s+(?<destination>.+?)\s+(?<time>\S+)\s+(?<date>\S+)$/;
                   var match = flightString.match(flightRegex);

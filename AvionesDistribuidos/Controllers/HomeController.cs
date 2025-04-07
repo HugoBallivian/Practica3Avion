@@ -164,20 +164,17 @@ namespace AvionesDistribuidos.Controllers
         [HttpPost]
         public IActionResult GetFlights([FromForm] string departure, [FromForm] string destination, [FromForm] string date)
         {
-            // Realizamos el join entre Vuelo, RutaComercial y Destino para extraer información.
             var query = from v in _context.Set<Vuelo>()
                         join r in _context.Set<RutaComercial>() on v.RutaId equals r.Id
                         join d1 in _context.Destinos on r.CiudadOrigenId equals d1.Id
                         join d2 in _context.Destinos on r.CiudadDestinoId equals d2.Id
                         select new { v, d1, d2 };
 
-            // Si se ingresaron País de Salida y Destino, se filtra por ellos.
             if (!string.IsNullOrWhiteSpace(departure) && !string.IsNullOrWhiteSpace(destination))
             {
                 query = query.Where(x => x.d1.descripcion_corta == departure && x.d2.descripcion_corta == destination);
             }
 
-            // Si se ingresó una fecha, se valida y se filtra por ella.
             if (!string.IsNullOrWhiteSpace(date))
             {
                 if (DateTime.TryParse(date, out DateTime flightDate))
