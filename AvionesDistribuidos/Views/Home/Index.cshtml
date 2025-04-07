@@ -51,12 +51,14 @@
                     <input type="date" id="dateSelect" class="form-control" min="2025-03-01" max="2025-12-31" />
                 </div>
             </div>
-            <button type="button" id="loadFlightsButton">Cargar Vuelos</button>
+            <br />
+            <button class="col-md-12" type="button" id="loadFlightsButton">Cargar Vuelos</button>
+            <br />
             <br />
             <div class="mb-3">
                 <label for="flightSelect">Selecciona Vuelo</label>
                 <br />
-                <select id="flightSelect" class="form-select">
+                <select id="flightSelect" class="form-select" disabled="disabled">
                     <option value="">-- Selecciona Vuelo --</option>
                     @foreach (var flight in flights)
                     {
@@ -227,11 +229,13 @@
                 width: 'resolve'
             });
 
-            // Evento para cargar vuelos usando los filtros (País de Salida, Destino y Fecha)
+            $('#flightSelect').prop("disabled", true);
+
             $('#loadFlightsButton').click(function () {
                 var departure = $('#departureSelect').val();
                 var destination = $('#destinationSelect').val();
                 var date = $('#dateSelect').val();
+
                 if (departure === "" || destination === "" || date === "") {
                     alert("Seleccione País de Salida, Destino y Fecha.");
                     return;
@@ -244,11 +248,13 @@
                         if (response.success) {
                             var flightSelect = $('#flightSelect');
                             flightSelect.empty();
+                            flightSelect.removeAttr("disabled");
                             flightSelect.append('<option value="">-- Selecciona Vuelo --</option>');
                             $.each(response.flights, function (i, flight) {
                                 var flightText = flight.code + " " + flight.departureDesc + " - " + flight.destinationDesc + " " + flight.time + " " + flight.date;
                                 flightSelect.append('<option value="' + flightText + '">' + flightText + '</option>');
                             });
+                            flightSelect.trigger('change');
                         } else {
                             alert(response.message);
                         }
@@ -263,13 +269,18 @@
         function updateDateTime() {
             var now = new Date();
             var options = {
-                year: 'numeric', month: '2-digit', day: '2-digit',
-                hour: '2-digit', minute: '2-digit', second: '2-digit'
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
             };
             document.getElementById("currentDateTime").textContent = now.toLocaleDateString('es-ES', options);
         }
         setInterval(updateDateTime, 1000);
         updateDateTime();
+
 
         function parseFlightData(flightString) {
             var flightRegex = /^(?<code>\S+)\s+(?<departure>.+?)\s+-\s+(?<destination>.+?)\s+(?<time>\S+)\s+(?<date>\S+)$/;
