@@ -23,7 +23,6 @@ namespace AvionesDistribuidos.Models
         [ForeignKey("PaisId")]
         public Pais Pais { get; set; }
 
-        // Relación uno a muchos: una ciudad tiene varios destinos
         public ICollection<Destino> Destinos { get; set; }
     }
 }

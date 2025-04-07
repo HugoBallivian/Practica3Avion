@@ -22,6 +22,7 @@ namespace AvionesDistribuidos.Controllers
 
         public IActionResult Index()
         {
+            // Cargar países desde JSON
             var jsonPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "country-by-continent.json");
             var jsonData = System.IO.File.ReadAllText(jsonPath);
             var countryJsonList = JsonConvert.DeserializeObject<List<CountryJson>>(jsonData);
@@ -33,17 +34,29 @@ namespace AvionesDistribuidos.Controllers
             }).ToList();
             ViewBag.Countries = countryList;
 
-            var flights = new List<string>
-            {
-                "B-101 Ucrania(Kiev) - Bolivia(Cochabamba) 18:55 20/Abr/2025",
-                "A-205 España(Madrid) - Argentina(Buenos Aires) 09:30 15/Abr/2025"
-            };
-            ViewBag.Flights = flights;
+            // Construir la lista de vuelos a partir de la base de datos
+            // Se une Vuelo con RutaComercial y luego se unen las dos veces la tabla Destino para obtener los datos de origen y destino.
+            var flightsQuery = from v in _context.Set<Vuelo>()
+                               join r in _context.Set<RutaComercial>() on v.RutaId equals r.Id
+                               join dOrig in _context.Destinos on r.CiudadOrigenId equals dOrig.Id
+                               join dDest in _context.Destinos on r.CiudadDestinoId equals dDest.Id
+                               select new FlightViewModel
+                               {
+                                   Id = v.Id,
+                                   FlightString = v.CodigoVuelo + " " +
+                                                  dOrig.descripcion_corta + " - " +
+                                                  dDest.descripcion_corta + " " +
+                                                  v.FechaSalida.ToString("HH:mm") + " " +
+                                                  v.FechaSalida.ToString("dd/MMM/yyyy")
+                               };
+            var flightsList = flightsQuery.ToList();
+            ViewBag.Flights = flightsList;
 
-            // Consultar destinos para llenar los select usando descripcion_corta
+            // Cargar destinos (para los select de País de Salida y Destino)
             var destinosList = _context.Destinos.ToList();
             ViewBag.Destinos = destinosList;
 
+            // Configuración de asientos (código existente)
             char fcRowStart = 'A';
             char fcRowEnd = 'F';
             int fcColStart = 1;

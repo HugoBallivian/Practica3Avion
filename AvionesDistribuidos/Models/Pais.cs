@@ -21,7 +21,6 @@ namespace AvionesDistribuidos.Models
         [Column("codigo_iso")]
         public string CodigoIso { get; set; }
 
-        // Relación uno a muchos: un país tiene varias ciudades
         public ICollection<Ciudad> Ciudades { get; set; }
     }
 }

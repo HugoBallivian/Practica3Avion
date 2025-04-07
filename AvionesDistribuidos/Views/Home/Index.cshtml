@@ -1,7 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
     var countries = ViewBag.Countries as List<AvionesDistribuidos.Models.CountryViewModel>;
-    var flights = ViewBag.Flights as List<string>;
+    var flights = ViewBag.Flights as List<AvionesDistribuidos.Models.FlightViewModel>;
     var destinos = ViewBag.Destinos as List<AvionesDistribuidos.Models.Destino>;
 }
 
@@ -59,7 +59,7 @@
                     <option value="">-- Selecciona Vuelo --</option>
                     @foreach (var flight in flights)
                     {
-                        <option value="@flight">@flight</option>
+                        <option value="@flight.Id">@flight.FlightString</option>
                     }
                 </select>
             </div>
@@ -377,7 +377,7 @@
                 });
             }
             else {
-                currentSeat.classList.remove("libre", "reserva", "venta", "devolucion");
+                currentSeat.classList.Remove("libre", "reserva", "venta", "devolucion");
                 currentSeat.classList.add(newState);
                 if (newState === "venta") {
                     closeSeatModal();
