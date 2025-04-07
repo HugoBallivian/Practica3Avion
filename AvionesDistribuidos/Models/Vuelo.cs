@@ -41,7 +41,6 @@ namespace AvionesDistribuidos.Models
         [Column("gate")]
         public string Gate { get; set; }
 
-        // Propiedades de navegación
         [ForeignKey("AvionId")]
         public Avion Avion { get; set; }
 

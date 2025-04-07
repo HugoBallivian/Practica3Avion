@@ -2,6 +2,7 @@
 using AvionesDistribuidos.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -22,7 +23,6 @@ namespace AvionesDistribuidos.Controllers
 
         public IActionResult Index()
         {
-            // Cargar países desde JSON
             var jsonPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "country-by-continent.json");
             var jsonData = System.IO.File.ReadAllText(jsonPath);
             var countryJsonList = JsonConvert.DeserializeObject<List<CountryJson>>(jsonData);
@@ -34,8 +34,7 @@ namespace AvionesDistribuidos.Controllers
             }).ToList();
             ViewBag.Countries = countryList;
 
-            // Construir la lista de vuelos a partir de la base de datos
-            // Se une Vuelo con RutaComercial y luego se unen las dos veces la tabla Destino para obtener los datos de origen y destino.
+            // Se obtiene la lista completa de vuelos (sin filtro inicial) para el select de vuelos
             var flightsQuery = from v in _context.Set<Vuelo>()
                                join r in _context.Set<RutaComercial>() on v.RutaId equals r.Id
                                join dOrig in _context.Destinos on r.CiudadOrigenId equals dOrig.Id
@@ -52,11 +51,9 @@ namespace AvionesDistribuidos.Controllers
             var flightsList = flightsQuery.ToList();
             ViewBag.Flights = flightsList;
 
-            // Cargar destinos (para los select de País de Salida y Destino)
             var destinosList = _context.Destinos.ToList();
             ViewBag.Destinos = destinosList;
 
-            // Configuración de asientos (código existente)
             char fcRowStart = 'A';
             char fcRowEnd = 'F';
             int fcColStart = 1;
@@ -118,6 +115,43 @@ namespace AvionesDistribuidos.Controllers
             ViewBag.Pasajeros = JsonConvert.SerializeObject(pasajerosDict);
 
             return View();
+        }
+
+        [HttpPost]
+        public IActionResult FilterFlights([FromForm] string departure, [FromForm] string destination, [FromForm] string date)
+        {
+            if (string.IsNullOrWhiteSpace(departure) ||
+                string.IsNullOrWhiteSpace(destination) ||
+                string.IsNullOrWhiteSpace(date))
+            {
+                return Json(new { success = false, message = "Debe completar los tres campos para filtrar." });
+            }
+
+            if (!DateTime.TryParse(date, out DateTime fechaFiltro))
+            {
+                return Json(new { success = false, message = "Fecha inválida." });
+            }
+
+            var filteredFlightsQuery = from v in _context.Set<Vuelo>()
+                                       join r in _context.Set<RutaComercial>() on v.RutaId equals r.Id
+                                       join dOrig in _context.Destinos on r.CiudadOrigenId equals dOrig.Id
+                                       join dDest in _context.Destinos on r.CiudadDestinoId equals dDest.Id
+                                       where dOrig.descripcion_corta == departure &&
+                                             dDest.descripcion_corta == destination &&
+                                             v.FechaSalida.Date == fechaFiltro.Date
+                                       select new FlightViewModel
+                                       {
+                                           Id = v.Id,
+                                           FlightString = v.CodigoVuelo + " " +
+                                                          dOrig.descripcion_corta + " - " +
+                                                          dDest.descripcion_corta + " " +
+                                                          v.FechaSalida.ToString("HH:mm") + " " +
+                                                          v.FechaSalida.ToString("dd/MMM/yyyy")
+                                       };
+
+            var filteredFlights = filteredFlightsQuery.ToList();
+
+            return Json(new { success = true, flights = filteredFlights });
         }
 
         [HttpPost]

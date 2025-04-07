@@ -225,6 +225,41 @@
                 allowClear: true,
                 width: 'resolve'
             });
+
+            function filterFlights() {
+                var dep = $('#departureSelect').val();
+                var dest = $('#destinationSelect').val();
+                var date = $('#dateSelect').val();
+
+                if (dep !== "" && dest !== "" && date !== "") {
+                    $('#flightSelect').prop('disabled', false);
+                    $.ajax({
+                        url: '@Url.Action("FilterFlights", "Home")',
+                        type: 'POST',
+                        data: { departure: dep, destination: dest, date: date },
+                        success: function (response) {
+                            if (response.success) {
+                                var flights = response.flights;
+                                var flightSelect = $('#flightSelect');
+                                flightSelect.empty();
+                                flightSelect.append('<option value="">-- Selecciona Vuelo --</option>');
+                                $.each(flights, function (i, flight) {
+                                    flightSelect.append('<option value="' + flight.Id + '">' + flight.FlightString + '</option>');
+                                });
+                            } else {
+                                alert(response.message);
+                                $('#flightSelect').empty().append('<option value="">-- Selecciona Vuelo --</option>').prop('disabled', true);
+                            }
+                        },
+                        error: function () {
+                            alert("Error al filtrar los vuelos.");
+                        }
+                    });
+                } else {
+                    $('#flightSelect').empty().append('<option value="">-- Selecciona Vuelo --</option>').prop('disabled', true);
+                }
+            }
+            $('#departureSelect, #destinationSelect, #dateSelect').on('change', filterFlights);
         });
     </script>
     <script>
@@ -377,7 +412,7 @@
                 });
             }
             else {
-                currentSeat.classList.Remove("libre", "reserva", "venta", "devolucion");
+                currentSeat.classList.remove("libre", "reserva", "venta", "devolucion");
                 currentSeat.classList.add(newState);
                 if (newState === "venta") {
                     closeSeatModal();
