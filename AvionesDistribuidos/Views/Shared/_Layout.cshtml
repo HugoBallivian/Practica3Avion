@@ -7,7 +7,9 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/AvionesDistribuidos.styles.css" asp-append-version="true" />
+    <!-- Carga de Select2 CSS vía CDN -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <!-- Carga de jQuery y Select2 JS vía CDN (única instancia) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 </head>
@@ -17,7 +19,7 @@
             @RenderBody()
         </main>
     </div>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <!-- Se mantiene la carga de Bootstrap y demás scripts locales -->
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)

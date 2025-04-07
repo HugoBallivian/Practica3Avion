@@ -227,28 +227,31 @@
                 width: 'resolve'
             });
 
-            // Evento para cargar vuelos con los filtros seleccionados
+            // Evento para cargar vuelos usando los filtros (País de Salida, Destino y Fecha)
             $('#loadFlightsButton').click(function () {
                 var departure = $('#departureSelect').val();
                 var destination = $('#destinationSelect').val();
                 var date = $('#dateSelect').val();
-
-                if (!departure || !destination || !date) {
-                    alert("Debe seleccionar País de Salida, Destino y Fecha.");
+                if (departure === "" || destination === "" || date === "") {
+                    alert("Seleccione País de Salida, Destino y Fecha.");
                     return;
                 }
-
                 $.ajax({
                     url: '@Url.Action("GetFlights", "Home")',
-                    type: 'GET',
-                    data: { date: date, departure: departure, destination: destination },
+                    type: 'POST',
+                    data: { departure: departure, destination: destination, date: date },
                     success: function (response) {
-                        var flightSelect = $('#flightSelect');
-                        flightSelect.empty();
-                        flightSelect.append('<option value="">-- Selecciona Vuelo --</option>');
-                        $.each(response, function (index, flight) {
-                            flightSelect.append('<option value="' + flight + '">' + flight + '</option>');
-                        });
+                        if (response.success) {
+                            var flightSelect = $('#flightSelect');
+                            flightSelect.empty();
+                            flightSelect.append('<option value="">-- Selecciona Vuelo --</option>');
+                            $.each(response.flights, function (i, flight) {
+                                var flightText = flight.code + " " + flight.departureDesc + " - " + flight.destinationDesc + " " + flight.time + " " + flight.date;
+                                flightSelect.append('<option value="' + flightText + '">' + flightText + '</option>');
+                            });
+                        } else {
+                            alert(response.message);
+                        }
                     },
                     error: function () {
                         alert("Error al cargar vuelos.");
@@ -256,8 +259,7 @@
                 });
             });
         });
-    </script>
-    <script>
+
         function updateDateTime() {
             var now = new Date();
             var options = {
@@ -268,8 +270,7 @@
         }
         setInterval(updateDateTime, 1000);
         updateDateTime();
-    </script>
-    <script>
+
         function parseFlightData(flightString) {
             var flightRegex = /^(?<code>\S+)\s+(?<departure>.+?)\s+-\s+(?<destination>.+?)\s+(?<time>\S+)\s+(?<date>\S+)$/;
             var match = flightString.match(flightRegex);
@@ -284,8 +285,7 @@
             }
             return null;
         }
-    </script>
-    <script>
+
         var pasajeros = @Html.Raw(ViewBag.Pasajeros);
         var currentSeat = null;
         var currentSeatState = null;

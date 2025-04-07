@@ -1,13 +1,12 @@
 ﻿using AvionesDistribuidos.Data;
 using AvionesDistribuidos.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
-using System;
-using System.Globalization; // Se requiere para el formateo de fechas
 
 namespace AvionesDistribuidos.Controllers
 {
@@ -37,7 +36,8 @@ namespace AvionesDistribuidos.Controllers
 
             var flights = new List<string>
             {
-                "Ingrese datos corresponientes"
+                "B-101 Ucrania(Kiev) - Bolivia(Cochabamba) 18:55 20/Abr/2025",
+                "A-205 España(Madrid) - Argentina(Buenos Aires) 09:30 15/Abr/2025"
             };
             ViewBag.Flights = flights;
 
@@ -161,30 +161,37 @@ namespace AvionesDistribuidos.Controllers
             }
         }
 
-        [HttpGet]
-        public IActionResult GetFlights(DateTime date, string departure, string destination)
+        [HttpPost]
+        public IActionResult GetFlights([FromForm] string departure, [FromForm] string destination, [FromForm] string date)
         {
-            var flights = (from vuelo in _context.Set<Vuelo>()
-                           join ruta in _context.Set<RutaComercial>() on vuelo.RutaId equals ruta.Id
-                           join destinoOrigen in _context.Destinos on ruta.CiudadOrigenId equals destinoOrigen.Id
-                           join destinoDestino in _context.Destinos on ruta.CiudadDestinoId equals destinoDestino.Id
-                           where vuelo.FechaSalida.Date == date.Date &&
-                                 destinoOrigen.descripcion_corta == departure &&
-                                 destinoDestino.descripcion_corta == destination
-                           select new
-                           {
-                               vuelo.CodigoVuelo,
-                               OrigenDescripcion = destinoOrigen.descripcion_corta,
-                               DestinoDescripcion = destinoDestino.descripcion_corta,
-                               Hora = vuelo.FechaSalida.ToString("HH:mm"),
-                              
-                               Fecha = vuelo.FechaSalida.ToString("dd/MMM/yyyy", new CultureInfo("es-ES"))
-                           }).ToList();
+            if (string.IsNullOrWhiteSpace(departure) || string.IsNullOrWhiteSpace(destination) || string.IsNullOrWhiteSpace(date))
+            {
+                return Json(new { success = false, message = "Faltan datos para la búsqueda de vuelos." });
+            }
 
-            var flightStrings = flights.Select(f =>
-                $"{f.CodigoVuelo} {f.OrigenDescripcion} - {f.DestinoDescripcion} {f.Hora} {f.Fecha}"
-            );
-            return Json(flightStrings);
+            if (!DateTime.TryParse(date, out DateTime flightDate))
+            {
+                return Json(new { success = false, message = "Fecha inválida." });
+            }
+
+            // Se realiza el join entre Vuelo, RutaComercial y Destino para obtener la descripción de origen y destino.
+            var vuelos = (from v in _context.Set<Vuelo>()
+                          join r in _context.Set<RutaComercial>() on v.RutaId equals r.Id
+                          join d1 in _context.Destinos on r.CiudadOrigenId equals d1.Id
+                          join d2 in _context.Destinos on r.CiudadDestinoId equals d2.Id
+                          where d1.descripcion_corta == departure &&
+                                d2.descripcion_corta == destination &&
+                                v.FechaSalida.Date == flightDate.Date
+                          select new
+                          {
+                              code = v.CodigoVuelo,
+                              departureDesc = d1.descripcion_corta,
+                              destinationDesc = d2.descripcion_corta,
+                              time = v.FechaSalida.ToString("HH:mm"),
+                              date = v.FechaSalida.ToString("dd/MMM/yyyy")
+                          }).ToList();
+
+            return Json(new { success = true, flights = vuelos });
         }
 
         public IActionResult Privacy()
