@@ -206,96 +206,104 @@
 
 @section Scripts
 {
-    <script>
-        $(document).ready(function () {
-            $('#countrySelect').select2({
-                placeholder: "-- Selecciona --",
-                allowClear: true,
-                width: 'resolve'
-            });
-            $('#departureSelect').select2({
-                placeholder: "-- Selecciona País de Salida --",
-                allowClear: true,
-                width: 'resolve'
-            });
-            $('#destinationSelect').select2({
-                placeholder: "-- Selecciona Destino --",
-                allowClear: true,
-                width: 'resolve'
-            });
-            $('#flightSelect').select2({
-                placeholder: "-- Selecciona Vuelo --",
-                allowClear: true,
-                width: 'resolve'
-            });
+        < <script>
+              $(document).ready(function () {
+                  // Inicializa los selects con Select2 para que sean buscables.
+                  $('#countrySelect').select2({
+                      placeholder: "-- Selecciona --",
+                      allowClear: true,
+                      width: 'resolve'
+                  });
+                  $('#departureSelect').select2({
+                      placeholder: "-- Selecciona País de Salida --",
+                      allowClear: true,
+                      width: 'resolve'
+                  });
+                  $('#destinationSelect').select2({
+                      placeholder: "-- Selecciona Destino --",
+                      allowClear: true,
+                      width: 'resolve'
+                  });
+                  $('#flightSelect').select2({
+                      placeholder: "-- Selecciona Vuelo --",
+                      allowClear: true,
+                      width: 'resolve'
+                  });
 
-            $('#flightSelect').prop("disabled", true);
+                  // Inicialmente, el select de vuelos se deshabilita.
+                  $('#flightSelect').prop("disabled", true);
 
-            $('#loadFlightsButton').click(function () {
-                var departure = $('#departureSelect').val();
-                var destination = $('#destinationSelect').val();
-                var date = $('#dateSelect').val();
+                  // Evento para el botón “Cargar Vuelos”
+                  $('#loadFlightsButton').click(function () {
+                      // Obtiene los valores de los campos.
+                      var departure = $('#departureSelect').val();
+                      var destination = $('#destinationSelect').val();
+                      var date = $('#dateSelect').val();
 
-                if (departure === "" || destination === "" || date === "") {
-                    alert("Seleccione País de Salida, Destino y Fecha.");
-                    return;
-                }
-                $.ajax({
-                    url: '@Url.Action("GetFlights", "Home")',
-                    type: 'POST',
-                    data: { departure: departure, destination: destination, date: date },
-                    success: function (response) {
-                        if (response.success) {
-                            var flightSelect = $('#flightSelect');
-                            flightSelect.empty();
-                            flightSelect.removeAttr("disabled");
-                            flightSelect.append('<option value="">-- Selecciona Vuelo --</option>');
-                            $.each(response.flights, function (i, flight) {
-                                var flightText = flight.code + " " + flight.departureDesc + " - " + flight.destinationDesc + " " + flight.time + " " + flight.date;
-                                flightSelect.append('<option value="' + flightText + '">' + flightText + '</option>');
-                            });
-                            flightSelect.trigger('change');
-                        } else {
-                            alert(response.message);
-                        }
-                    },
-                    error: function () {
-                        alert("Error al cargar vuelos.");
-                    }
-                });
-            });
-        });
+                      // Si no se ingresa ningún criterio, se alerta al usuario.
+                      if (departure === "" && destination === "" && date === "") {
+                          alert("Ingrese al menos un criterio de búsqueda (País de Salida y Destino, o Fecha).");
+                          return;
+                      }
 
-        function updateDateTime() {
-            var now = new Date();
-            var options = {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            };
-            document.getElementById("currentDateTime").textContent = now.toLocaleDateString('es-ES', options);
-        }
-        setInterval(updateDateTime, 1000);
-        updateDateTime();
+                      $.ajax({
+                          url: '@Url.Action("GetFlights", "Home")',
+                          type: 'POST',
+                          data: { departure: departure, destination: destination, date: date },
+                          success: function (response) {
+                              if (response.success) {
+                                  var flightSelect = $('#flightSelect');
+                                  flightSelect.empty();
+                                  flightSelect.removeAttr("disabled");
+                                  flightSelect.append('<option value="">-- Selecciona Vuelo --</option>');
+                                  $.each(response.flights, function (i, flight) {
+                                      var flightText = flight.code + " " + flight.departureDesc + " - " + flight.destinationDesc + " " + flight.time + " " + flight.date;
+                                      flightSelect.append('<option value="' + flightText + '">' + flightText + '</option>');
+                                  });
+                                  flightSelect.trigger('change');
+                              } else {
+                                  alert(response.message);
+                              }
+                          },
+                          error: function () {
+                              alert("Error al cargar vuelos.");
+                          }
+                      });
+                  });
+              });
 
+              // Función para actualizar en tiempo real la hora en el elemento con id "currentDateTime".
+              function updateDateTime() {
+                  var now = new Date();
+                  var options = {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      second: '2-digit'
+                  };
+                  document.getElementById("currentDateTime").textContent = now.toLocaleDateString('es-ES', options);
+              }
+              setInterval(updateDateTime, 1000);
+              updateDateTime();
 
-        function parseFlightData(flightString) {
-            var flightRegex = /^(?<code>\S+)\s+(?<departure>.+?)\s+-\s+(?<destination>.+?)\s+(?<time>\S+)\s+(?<date>\S+)$/;
-            var match = flightString.match(flightRegex);
-            if (match && match.groups) {
-                return {
-                    code: match.groups.code,
-                    departure: match.groups.departure,
-                    destination: match.groups.destination,
-                    time: match.groups.time,
-                    date: match.groups.date
-                };
-            }
-            return null;
-        }
+              // Función auxiliar para parsear la cadena del vuelo (si se necesita en otros módulos).
+              function parseFlightData(flightString) {
+                  var flightRegex = /^(?<code>\S+)\s+(?<departure>.+?)\s+-\s+(?<destination>.+?)\s+(?<time>\S+)\s+(?<date>\S+)$/;
+                  var match = flightString.match(flightRegex);
+                  if (match && match.groups) {
+                      return {
+                          code: match.groups.code,
+                          departure: match.groups.departure,
+                          destination: match.groups.destination,
+                          time: match.groups.time,
+                          date: match.groups.date
+                      };
+                  }
+                  return null;
+              }
+
 
         var pasajeros = @Html.Raw(ViewBag.Pasajeros);
         var currentSeat = null;

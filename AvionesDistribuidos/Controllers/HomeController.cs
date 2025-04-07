@@ -164,32 +164,45 @@ namespace AvionesDistribuidos.Controllers
         [HttpPost]
         public IActionResult GetFlights([FromForm] string departure, [FromForm] string destination, [FromForm] string date)
         {
-            if (string.IsNullOrWhiteSpace(departure) || string.IsNullOrWhiteSpace(destination) || string.IsNullOrWhiteSpace(date))
+            // Realizamos el join entre Vuelo, RutaComercial y Destino para extraer información.
+            var query = from v in _context.Set<Vuelo>()
+                        join r in _context.Set<RutaComercial>() on v.RutaId equals r.Id
+                        join d1 in _context.Destinos on r.CiudadOrigenId equals d1.Id
+                        join d2 in _context.Destinos on r.CiudadDestinoId equals d2.Id
+                        select new { v, d1, d2 };
+
+            // Si se ingresaron País de Salida y Destino, se filtra por ellos.
+            if (!string.IsNullOrWhiteSpace(departure) && !string.IsNullOrWhiteSpace(destination))
             {
-                return Json(new { success = false, message = "Faltan datos para la búsqueda de vuelos." });
+                query = query.Where(x => x.d1.descripcion_corta == departure && x.d2.descripcion_corta == destination);
             }
 
-            if (!DateTime.TryParse(date, out DateTime flightDate))
+            // Si se ingresó una fecha, se valida y se filtra por ella.
+            if (!string.IsNullOrWhiteSpace(date))
             {
-                return Json(new { success = false, message = "Fecha inválida." });
+                if (DateTime.TryParse(date, out DateTime flightDate))
+                {
+                    query = query.Where(x => x.v.FechaSalida.Date == flightDate.Date);
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Fecha inválida." });
+                }
             }
 
-            // Se realiza el join entre Vuelo, RutaComercial y Destino para obtener la descripción de origen y destino.
-            var vuelos = (from v in _context.Set<Vuelo>()
-                          join r in _context.Set<RutaComercial>() on v.RutaId equals r.Id
-                          join d1 in _context.Destinos on r.CiudadOrigenId equals d1.Id
-                          join d2 in _context.Destinos on r.CiudadDestinoId equals d2.Id
-                          where d1.descripcion_corta == departure &&
-                                d2.descripcion_corta == destination &&
-                                v.FechaSalida.Date == flightDate.Date
-                          select new
-                          {
-                              code = v.CodigoVuelo,
-                              departureDesc = d1.descripcion_corta,
-                              destinationDesc = d2.descripcion_corta,
-                              time = v.FechaSalida.ToString("HH:mm"),
-                              date = v.FechaSalida.ToString("dd/MMM/yyyy")
-                          }).ToList();
+            var vuelos = query.Select(x => new
+            {
+                code = x.v.CodigoVuelo,
+                departureDesc = x.d1.descripcion_corta,
+                destinationDesc = x.d2.descripcion_corta,
+                time = x.v.FechaSalida.ToString("HH:mm"),
+                date = x.v.FechaSalida.ToString("dd/MMM/yyyy")
+            }).ToList();
+
+            if (vuelos.Count == 0)
+            {
+                return Json(new { success = false, message = "No se encontraron vuelos." });
+            }
 
             return Json(new { success = true, flights = vuelos });
         }
