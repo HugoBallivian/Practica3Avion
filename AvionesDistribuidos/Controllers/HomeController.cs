@@ -6,6 +6,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
+using System;
+using System.Globalization; // Se requiere para el formateo de fechas
 
 namespace AvionesDistribuidos.Controllers
 {
@@ -33,22 +35,11 @@ namespace AvionesDistribuidos.Controllers
             }).ToList();
             ViewBag.Countries = countryList;
 
-          
-            var flightsQuery = from v in _context.Set<Vuelo>()
-                               join r in _context.Set<RutaComercial>() on v.RutaId equals r.Id
-                               join dOrig in _context.Destinos on r.CiudadOrigenId equals dOrig.Id
-                               join dDest in _context.Destinos on r.CiudadDestinoId equals dDest.Id
-                               select new FlightViewModel
-                               {
-                                   Id = v.Id,
-                                   FlightString = v.CodigoVuelo + " " +
-                                                  dOrig.descripcion_corta + " - " +
-                                                  dDest.descripcion_corta + " " +
-                                                  v.FechaSalida.ToString("HH:mm") + " " +
-                                                  v.FechaSalida.ToString("dd/MMM/yyyy")
-                               };
-            var flightsList = flightsQuery.ToList();
-            ViewBag.Flights = flightsList;
+            var flights = new List<string>
+            {
+                "Ingrese datos corresponientes"
+            };
+            ViewBag.Flights = flights;
 
             var destinosList = _context.Destinos.ToList();
             ViewBag.Destinos = destinosList;
@@ -168,6 +159,32 @@ namespace AvionesDistribuidos.Controllers
                 _context.SaveChanges();
                 return Json(new { success = true, passenger = nuevoPasajero.nombre_completo });
             }
+        }
+
+        [HttpGet]
+        public IActionResult GetFlights(DateTime date, string departure, string destination)
+        {
+            var flights = (from vuelo in _context.Set<Vuelo>()
+                           join ruta in _context.Set<RutaComercial>() on vuelo.RutaId equals ruta.Id
+                           join destinoOrigen in _context.Destinos on ruta.CiudadOrigenId equals destinoOrigen.Id
+                           join destinoDestino in _context.Destinos on ruta.CiudadDestinoId equals destinoDestino.Id
+                           where vuelo.FechaSalida.Date == date.Date &&
+                                 destinoOrigen.descripcion_corta == departure &&
+                                 destinoDestino.descripcion_corta == destination
+                           select new
+                           {
+                               vuelo.CodigoVuelo,
+                               OrigenDescripcion = destinoOrigen.descripcion_corta,
+                               DestinoDescripcion = destinoDestino.descripcion_corta,
+                               Hora = vuelo.FechaSalida.ToString("HH:mm"),
+                              
+                               Fecha = vuelo.FechaSalida.ToString("dd/MMM/yyyy", new CultureInfo("es-ES"))
+                           }).ToList();
+
+            var flightStrings = flights.Select(f =>
+                $"{f.CodigoVuelo} {f.OrigenDescripcion} - {f.DestinoDescripcion} {f.Hora} {f.Fecha}"
+            );
+            return Json(flightStrings);
         }
 
         public IActionResult Privacy()

@@ -1,7 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
     var countries = ViewBag.Countries as List<AvionesDistribuidos.Models.CountryViewModel>;
-    var flights = ViewBag.Flights as List<AvionesDistribuidos.Models.FlightViewModel>;
+    var flights = ViewBag.Flights as List<string>;
     var destinos = ViewBag.Destinos as List<AvionesDistribuidos.Models.Destino>;
 }
 
@@ -51,6 +51,7 @@
                     <input type="date" id="dateSelect" class="form-control" min="2025-03-01" max="2025-12-31" />
                 </div>
             </div>
+            <button type="button" id="loadFlightsButton">Cargar Vuelos</button>
             <br />
             <div class="mb-3">
                 <label for="flightSelect">Selecciona Vuelo</label>
@@ -59,7 +60,7 @@
                     <option value="">-- Selecciona Vuelo --</option>
                     @foreach (var flight in flights)
                     {
-                        <option value="@flight.Id">@flight.FlightString</option>
+                        <option value="@flight">@flight</option>
                     }
                 </select>
             </div>
@@ -225,6 +226,35 @@
                 allowClear: true,
                 width: 'resolve'
             });
+
+            // Evento para cargar vuelos con los filtros seleccionados
+            $('#loadFlightsButton').click(function () {
+                var departure = $('#departureSelect').val();
+                var destination = $('#destinationSelect').val();
+                var date = $('#dateSelect').val();
+
+                if (!departure || !destination || !date) {
+                    alert("Debe seleccionar País de Salida, Destino y Fecha.");
+                    return;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("GetFlights", "Home")',
+                    type: 'GET',
+                    data: { date: date, departure: departure, destination: destination },
+                    success: function (response) {
+                        var flightSelect = $('#flightSelect');
+                        flightSelect.empty();
+                        flightSelect.append('<option value="">-- Selecciona Vuelo --</option>');
+                        $.each(response, function (index, flight) {
+                            flightSelect.append('<option value="' + flight + '">' + flight + '</option>');
+                        });
+                    },
+                    error: function () {
+                        alert("Error al cargar vuelos.");
+                    }
+                });
+            });
         });
     </script>
     <script>
@@ -377,7 +407,7 @@
                 });
             }
             else {
-                currentSeat.classList.Remove("libre", "reserva", "venta", "devolucion");
+                currentSeat.classList.remove("libre", "reserva", "venta", "devolucion");
                 currentSeat.classList.add(newState);
                 if (newState === "venta") {
                     closeSeatModal();
