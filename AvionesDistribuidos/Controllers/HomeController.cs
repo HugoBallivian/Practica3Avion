@@ -41,68 +41,54 @@ namespace AvionesDistribuidos.Controllers
             };
             ViewBag.Flights = flights;
 
+            if (TempData["FlightInfo"] != null)
+            {
+                ViewBag.FlightInfo = JsonConvert.DeserializeObject<dynamic>(TempData["FlightInfo"].ToString());
+            }
+
             var destinosList = _context.Destinos.ToList();
             ViewBag.Destinos = destinosList;
-
-            char fcRowStart = 'A';
-            char fcRowEnd = 'F';
-            int fcColStart = 1;
-            int fcColEnd = 3;
-            var firstClassRows = new List<SeatRow>();
-            for (char row = fcRowStart; row <= fcRowEnd; row++)
-            {
-                var seats = Enumerable.Range(fcColStart, fcColEnd - fcColStart + 1)
-                    .Select(col => new Seat { SeatId = $"{row}{col.ToString("D2")}" })
-                    .ToList();
-                firstClassRows.Add(new SeatRow { RowLabel = row.ToString(), Seats = seats });
-            }
-
-            char econRowStart = 'A';
-            char econRowEnd = 'F';
-            int econColStart = 4;
-            int econColEnd = 29;
-            var economyRows = new List<SeatRow>();
-            for (char row = econRowStart; row <= econRowEnd; row++)
-            {
-                var seats = Enumerable.Range(econColStart, econColEnd - econColStart + 1)
-                    .Select(col =>
-                    {
-                        var seat = new Seat { SeatId = $"{row}{col.ToString("D2")}" };
-                        if ((row == 'A' || row == 'F') && seat.SeatId.EndsWith("10"))
-                        {
-                            seat.State = "empty";
-                        }
-                        return seat;
-                    }).ToList();
-                economyRows.Add(new SeatRow { RowLabel = row.ToString(), Seats = seats });
-            }
-
-            var seatConfig = new List<SeatConfiguration>
-            {
-                new SeatConfiguration
-                {
-                    SectionName = "Primera Clase",
-                    Rows = firstClassRows
-                },
-                new SeatConfiguration
-                {
-                    SectionName = "Económica",
-                    Rows = economyRows
-                }
-            };
-
-            int totalAsientos = firstClassRows.Sum(r => r.Seats.Count) + economyRows.Sum(r => r.Seats.Count);
-            if (totalAsientos < 8 || totalAsientos > 853)
-            {
-                throw new Exception($"La configuración de asientos es inválida: total {totalAsientos} asientos. Debe estar entre 8 y 853.");
-            }
-            ViewBag.SeatConfig = seatConfig;
 
             var pasajerosList = _context.Pasajeros.ToList();
             var pasajerosDict = pasajerosList.ToDictionary(
                 p => "P" + p.numero_pasaporte.ToString(),
                 p => p.nombre_completo);
             ViewBag.Pasajeros = JsonConvert.SerializeObject(pasajerosDict);
+
+            List<SeatConfiguration> seatConfig;
+
+            if (TempData["SeatConfig"] != null)
+            {
+                var config = JsonConvert.DeserializeObject<dynamic>(TempData["SeatConfig"].ToString());
+                // Conservar TempData para futuras peticiones
+                TempData.Keep("SeatConfig");
+
+                char fcRowStart = 'A';
+                char fcRowEnd = config.LastRow1;
+                int fcColStart = 1;
+                int fcColEnd = config.LastCol1;
+
+                char econRowStart = 'A';
+                char econRowEnd = config.LastRow2;
+                int econColStart = config.LastCol1 + 1;
+                int econColEnd = config.LastCol2;
+
+                var firstClassRows = GenerateSeatRows(fcRowStart, fcRowEnd, fcColStart, fcColEnd);
+                var economyRows = GenerateSeatRows(econRowStart, econRowEnd, econColStart, econColEnd);
+
+                seatConfig = new List<SeatConfiguration>
+                {
+                    new SeatConfiguration { SectionName = "Primera Clase", Rows = firstClassRows },
+                    new SeatConfiguration { SectionName = "Económica", Rows = economyRows }
+                };
+            }
+            else
+            {
+                // Configuración por defecto
+                seatConfig = GetDefaultSeatConfiguration();
+            }
+
+            ViewBag.SeatConfig = seatConfig;
 
             return View();
         }
@@ -118,7 +104,6 @@ namespace AvionesDistribuidos.Controllers
             {
                 return Json(new { success = false, message = "Número de pasaporte inválido." });
             }
-
             var pasajeroExistente = _context.Pasajeros.FirstOrDefault(p => p.numero_pasaporte == numeroPasaporte);
             if (pasajeroExistente != null)
             {
@@ -137,12 +122,10 @@ namespace AvionesDistribuidos.Controllers
             {
                 return Json(new { success = false, message = "Los campos de Pasaporte y Pasajero son obligatorios." });
             }
-
             if (!int.TryParse(passport, out int numeroPasaporte))
             {
                 return Json(new { success = false, message = "Número de pasaporte inválido." });
             }
-
             var pasajeroExistente = _context.Pasajeros.FirstOrDefault(p => p.numero_pasaporte == numeroPasaporte);
             if (pasajeroExistente != null)
             {
@@ -204,6 +187,94 @@ namespace AvionesDistribuidos.Controllers
             return Json(new { success = true, flights = vuelos });
         }
 
+        [HttpPost]
+        public IActionResult GetSeatConfiguration([FromForm] string flightCode)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(flightCode))
+                {
+                    return Json(new { success = false, message = "Código de vuelo inválido." });
+                }
+
+                var vuelo = _context.Vuelos
+                    .Include(v => v.Avion)
+                    .Include(v => v.Ruta)
+                        .ThenInclude(r => r.CiudadOrigen)
+                    .Include(v => v.Ruta)
+                        .ThenInclude(r => r.CiudadDestino)
+                    .FirstOrDefault(v => v.CodigoVuelo == flightCode);
+
+                if (vuelo == null || vuelo.Avion == null || vuelo.Ruta == null)
+                {
+                    return Json(new { success = false, message = "No se encontró configuración para este vuelo." });
+                }
+
+                var flightInfo = new
+                {
+                    CodigoVuelo = vuelo.CodigoVuelo,
+                    Origen = vuelo.Ruta.CiudadOrigen.Nombre,
+                    Destino = vuelo.Ruta.CiudadDestino.Nombre,
+                    FechaSalida = vuelo.FechaSalida.ToString("dd/MMM/yyyy"),
+                    HoraSalida = vuelo.FechaSalida.ToString("HH:mm"),
+                    FechaLlegada = vuelo.FechaLlegada.ToString("dd/MMM/yyyy"),
+                    HoraLlegada = vuelo.FechaLlegada.ToString("HH:mm")
+                };
+
+                TempData["FlightInfo"] = JsonConvert.SerializeObject(flightInfo);
+                TempData.Keep("FlightInfo");
+
+                var avion = vuelo.Avion;
+                TempData["SeatConfig"] = JsonConvert.SerializeObject(new
+                {
+                    LastRow1 = avion.UltimaLetra1,
+                    LastRow2 = avion.UltimaLetra2,
+                    LastCol1 = avion.UltimoDigito1,
+                    LastCol2 = avion.UltimoDigito2,
+                    FlightId = vuelo.Id
+                });
+                TempData.Keep("SeatConfig");
+
+                return Json(new { success = true, flightInfo = flightInfo });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener configuración de asientos");
+                return Json(new { success = false, message = "Error interno al generar asientos." });
+            }
+        }
+
+        public IActionResult SeatMapPartial()
+        {
+            List<SeatConfiguration> seatConfig;
+            if (TempData["SeatConfig"] != null)
+            {
+                var config = JsonConvert.DeserializeObject<dynamic>(TempData["SeatConfig"].ToString());
+                TempData.Keep("SeatConfig");
+
+                char fcRowStart = 'A';
+                char fcRowEnd = config.LastRow1;
+                int fcColStart = 1;
+                int fcColEnd = config.LastCol1;
+                char econRowStart = 'A';
+                char econRowEnd = config.LastRow2;
+                int econColStart = config.LastCol1 + 1;
+                int econColEnd = config.LastCol2;
+                var firstClassRows = GenerateSeatRows(fcRowStart, fcRowEnd, fcColStart, fcColEnd);
+                var economyRows = GenerateSeatRows(econRowStart, econRowEnd, econColStart, econColEnd);
+                seatConfig = new List<SeatConfiguration>
+                {
+                    new SeatConfiguration { SectionName = "Primera Clase", Rows = firstClassRows },
+                    new SeatConfiguration { SectionName = "Económica", Rows = economyRows }
+                };
+            }
+            else
+            {
+                seatConfig = GetDefaultSeatConfiguration();
+            }
+            return PartialView("_SeatMapPartial", seatConfig);
+        }
+
         public IActionResult Privacy()
         {
             return View();
@@ -216,6 +287,40 @@ namespace AvionesDistribuidos.Controllers
             {
                 RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
             });
+        }
+
+        private List<SeatRow> GenerateSeatRows(char rowStart, char rowEnd, int colStart, int colEnd)
+        {
+            var rows = new List<SeatRow>();
+            for (char row = rowStart; row <= rowEnd; row++)
+            {
+                var seats = new List<Seat>();
+                for (int col = colStart; col <= colEnd; col++)
+                {
+                    seats.Add(new Seat { SeatId = $"{row}{col.ToString("D2")}" });
+                }
+                rows.Add(new SeatRow { RowLabel = row.ToString(), Seats = seats });
+            }
+            return rows;
+        }
+
+        private List<SeatConfiguration> GetDefaultSeatConfiguration()
+        {
+            char fcRowStart = 'A';
+            char fcRowEnd = 'F';
+            int fcColStart = 1;
+            int fcColEnd = 3;
+            char econRowStart = 'A';
+            char econRowEnd = 'F';
+            int econColStart = 4;
+            int econColEnd = 29;
+            var firstClassRows = GenerateSeatRows(fcRowStart, fcRowEnd, fcColStart, fcColEnd);
+            var economyRows = GenerateSeatRows(econRowStart, econRowEnd, econColStart, econColEnd);
+            return new List<SeatConfiguration>
+            {
+                new SeatConfiguration { SectionName = "Primera Clase", Rows = firstClassRows },
+                new SeatConfiguration { SectionName = "Económica", Rows = economyRows }
+            };
         }
     }
 }

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "vQb7lJL6/g0=",
+  "dgSpecHash": "NeN4eRGMWeA=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Dell\\Downloads\\Dsitribuidos\\Practica3Avion\\AvionesDistribuidos\\AvionesDistribuidos.csproj",
+  "projectFilePath": "C:\\Users\\Dell\\Downloads\\Practica3Avion-main\\Practica3Avion-main\\AvionesDistribuidos\\AvionesDistribuidos.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Dell\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\Dell\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",

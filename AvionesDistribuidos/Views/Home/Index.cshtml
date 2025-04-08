@@ -1,7 +1,12 @@
-﻿@{
+﻿@using Newtonsoft.Json
+
+@{
     ViewData["Title"] = "Home Page";
+
     var countries = ViewBag.Countries as List<AvionesDistribuidos.Models.CountryViewModel>;
+
     var flights = ViewBag.Flights as List<string>;
+
     var destinos = ViewBag.Destinos as List<AvionesDistribuidos.Models.Destino>;
 }
 
@@ -16,6 +21,7 @@
                 <select id="countrySelect" class="form-select">
                     <option value="">-- Selecciona --</option>
                     @foreach (var country in countries)
+
                     {
                         <option value="@country.Name">@country.Name - @country.Capital</option>
                     }
@@ -29,6 +35,7 @@
                     <select id="departureSelect" class="form-select">
                         <option value="">-- Selecciona País de Salida --</option>
                         @foreach (var dest in destinos)
+
                         {
                             <option value="@dest.descripcion_corta">@dest.descripcion_corta</option>
                         }
@@ -40,6 +47,7 @@
                     <select id="destinationSelect" class="form-select">
                         <option value="">-- Selecciona Destino --</option>
                         @foreach (var dest in destinos)
+
                         {
                             <option value="@dest.descripcion_corta">@dest.descripcion_corta</option>
                         }
@@ -53,45 +61,40 @@
             </div>
             <br />
             <button class="col-md-12" type="button" id="loadFlightsButton">Cargar Vuelos</button>
-            <br />
-            <br />
+            <br /><br />
             <div class="mb-3">
                 <label for="flightSelect">Selecciona Vuelo</label>
                 <br />
                 <select id="flightSelect" class="form-select" disabled="disabled">
                     <option value="">-- Selecciona Vuelo --</option>
                     @foreach (var flight in flights)
+
                     {
                         <option value="@flight">@flight</option>
                     }
                 </select>
+                <div class="mb-3">
+                    <button class="col-md-12" type="button" id="generateSeatsButton" disabled>Generar Mapa de Asientos</button>
+                </div>
             </div>
         </div>
         <div class="col-md-3">
             <h5 style="font-size:16px; margin-bottom:10px;">Estado de Asientos</h5>
             <table style="width: auto; border-collapse: collapse;">
                 <tr>
-                    <td style="padding: 4px;">
-                        <div style="width:15px; height:15px; background-color:blue; display:inline-block;"></div>
-                    </td>
+                    <td style="padding: 4px;"><div style="width:15px; height:15px; background-color:blue; display:inline-block;"></div></td>
                     <td style="font-size:14px; padding-left: 5px;">Libre</td>
                 </tr>
                 <tr>
-                    <td style="padding: 4px;">
-                        <div style="width:15px; height:15px; background-color:green; display:inline-block;"></div>
-                    </td>
+                    <td style="padding: 4px;"><div style="width:15px; height:15px; background-color:green; display:inline-block;"></div></td>
                     <td style="font-size:14px; padding-left: 5px;">Vendido</td>
                 </tr>
                 <tr>
-                    <td style="padding: 4px;">
-                        <div style="width:15px; height:15px; background-color:yellow; display:inline-block;"></div>
-                    </td>
+                    <td style="padding: 4px;"><div style="width:15px; height:15px; background-color:yellow; display:inline-block;"></div></td>
                     <td style="font-size:14px; padding-left: 5px;">Reserva</td>
                 </tr>
                 <tr>
-                    <td style="padding: 4px;">
-                        <div style="width:15px; height:15px; background-color:red; display:inline-block;"></div>
-                    </td>
+                    <td style="padding: 4px;"><div style="width:15px; height:15px; background-color:red; display:inline-block;"></div></td>
                     <td style="font-size:14px; padding-left: 5px;">Devolución</td>
                 </tr>
             </table>
@@ -100,32 +103,74 @@
     </div>
 
     <hr />
-    <h2>Mapa de Asientos</h2>
-    <div class="seat-container">
-        @foreach (var section in ViewBag.SeatConfig as List<AvionesDistribuidos.Models.SeatConfiguration>)
-        {
-            <div class="seat-section @(section.SectionName.Replace(" ", "").ToLower())">
-                @foreach (var row in section.Rows)
+    <div class="row flight-info mt-4">
+        <div class="col-md-4">
+            <label>Ruta del vuelo:</label>
+            <div id="flightRoute">
+                @(TempData["FlightInfo"] != null ?
+                    JsonConvert.DeserializeObject<dynamic>(TempData["FlightInfo"].ToString()).Origen + " - " +
+                    JsonConvert.DeserializeObject<dynamic>(TempData["FlightInfo"].ToString()).Destino :
+                    "Seleccione un vuelo")
+            </div>
+        </div>
+        <div class="col-md-4">
+            <label>Horarios:</label>
+            <div id="flightTimes">
+                @if (TempData["FlightInfo"] != null)
+
                 {
-                    <div class="seat-row">
-                        <div class="row-label">@row.RowLabel</div>
-                        @foreach (var seat in row.Seats)
-                        {
-                            if (seat.State == "empty")
-                            {
-                                <div class="seat empty"></div>
-                            }
-                            else
-                            {
-                                <div class="seat @seat.State" data-seat="@seat.SeatId" ondblclick="openSeatModal(this)">
-                                    @seat.SeatId
-                                </div>
-                            }
-                        }
-                    </div>
+                    var flightInfo = JsonConvert.DeserializeObject<dynamic>(TempData["FlightInfo"].ToString());
+                    <text>
+                        Salida: @flightInfo.HoraSalida (@flightInfo.FechaSalida)<br />
+                        Llegada: @flightInfo.HoraLlegada (@flightInfo.FechaLlegada)
+                    </text>
+                }
+
+                else
+
+                {
+                    <text>
+                        Salida: --:--<br />
+                        Llegada: --/---/----
+                    </text>
                 }
             </div>
-        }
+        </div>
+    </div>
+
+    <!-- Contenedor del mapa de asientos (no se modifica el contenido del partial view) -->
+    <div id="seatMapContainer">
+        <h2>Mapa de Asientos</h2>
+        <div class="seat-container">
+            @foreach (var section in ViewBag.SeatConfig as List<AvionesDistribuidos.Models.SeatConfiguration>)
+            {
+                <div class="seat-section @(section.SectionName.Replace(" ", "").ToLower())">
+                    @foreach (var row in section.Rows)
+                    {
+                        <div class="seat-row">
+                            <div class="row-label">@row.RowLabel</div>
+                            @foreach (var seat in row.Seats)
+                            {
+
+                                if (seat.State == "empty")
+
+                                {
+                                    <div class="seat empty"></div>
+                                }
+
+                                else
+
+                                {
+                                    <div class="seat @seat.State" data-seat="@seat.SeatId" ondblclick="openSeatModal(this)">
+                                        @seat.SeatId
+                                    </div>
+                                }
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
     </div>
 
     <div id="seatModal" class="modal">
@@ -188,118 +233,156 @@
             </div>
         </div>
     </div>
-
-    <div class="row flight-info mt-4">
-        <div class="col-md-4">
-            <label>Ruta del vuelo:</label>
-            <div id="flightRoute">Ucrania (Kiev) - Bolivia (Cochabamba)</div>
-        </div>
-        <div class="col-md-4">
-            <label>Horarios:</label>
-            <div id="flightTimes">
-                Salida: 18:55<br />
-                Llegada: 20/Abr/2025
-            </div>
-        </div>
-    </div>
 </div>
 
-@section Scripts
-{
-        < <script>
-              $(document).ready(function () {
-                  $('#countrySelect').select2({
-                      placeholder: "-- Selecciona --",
-                      allowClear: true,
-                      width: 'resolve'
-                  });
-                  $('#departureSelect').select2({
-                      placeholder: "-- Selecciona País de Salida --",
-                      allowClear: true,
-                      width: 'resolve'
-                  });
-                  $('#destinationSelect').select2({
-                      placeholder: "-- Selecciona Destino --",
-                      allowClear: true,
-                      width: 'resolve'
-                  });
-                  $('#flightSelect').select2({
-                      placeholder: "-- Selecciona Vuelo --",
-                      allowClear: true,
-                      width: 'resolve'
-                  });
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Inicializar los selects con Select2
+            $('#countrySelect').select2({
+                placeholder: "-- Selecciona --",
+                allowClear: true,
+                width: 'resolve'
+            });
+            $('#departureSelect').select2({
+                placeholder: "-- Selecciona País de Salida --",
+                allowClear: true,
+                width: 'resolve'
+            });
+            $('#destinationSelect').select2({
+                placeholder: "-- Selecciona Destino --",
+                allowClear: true,
+                width: 'resolve'
+            });
+            $('#flightSelect').select2({
+                placeholder: "-- Selecciona Vuelo --",
+                allowClear: true,
+                width: 'resolve'
+            });
 
-                  $('#flightSelect').prop("disabled", true);
+            // Deshabilitar el select de vuelos inicialmente
+            $('#flightSelect').prop("disabled", true);
 
-                  $('#loadFlightsButton').click(function () {
-                      // Obtiene los valores de los campos.
-                      var departure = $('#departureSelect').val();
-                      var destination = $('#destinationSelect').val();
-                      var date = $('#dateSelect').val();
+            // Cargar vuelos según criterios
+            $('#loadFlightsButton').click(function () {
+                var departure = $('#departureSelect').val();
+                var destination = $('#destinationSelect').val();
+                var date = $('#dateSelect').val();
 
-                      if (departure === "" && destination === "" && date === "") {
-                          alert("Ingrese al menos un criterio de búsqueda (País de Salida y Destino, o Fecha).");
-                          return;
-                      }
+                if (departure === "" && destination === "" && date === "") {
+                    alert("Ingrese al menos un criterio de búsqueda (País de Salida y Destino, o Fecha).");
+                    return;
+                }
 
-                      $.ajax({
-                          url: '@Url.Action("GetFlights", "Home")',
-                          type: 'POST',
-                          data: { departure: departure, destination: destination, date: date },
-                          success: function (response) {
-                              if (response.success) {
-                                  var flightSelect = $('#flightSelect');
-                                  flightSelect.empty();
-                                  flightSelect.removeAttr("disabled");
-                                  flightSelect.append('<option value="">-- Selecciona Vuelo --</option>');
-                                  $.each(response.flights, function (i, flight) {
-                                      var flightText = flight.code + " " + flight.departureDesc + " - " + flight.destinationDesc + " " + flight.time + " " + flight.date;
-                                      flightSelect.append('<option value="' + flightText + '">' + flightText + '</option>');
-                                  });
-                                  flightSelect.trigger('change');
-                              } else {
-                                  alert(response.message);
-                              }
-                          },
-                          error: function () {
-                              alert("Error al cargar vuelos.");
-                          }
-                      });
-                  });
-              });
+                $.ajax({
+                    url: '@Url.Action("GetFlights", "Home")',
+                    type: 'POST',
+                    data: { departure: departure, destination: destination, date: date },
+                    success: function (response) {
+                        if (response.success) {
+                            var flightSelect = $('#flightSelect');
+                            flightSelect.empty();
+                            flightSelect.removeAttr("disabled");
+                            flightSelect.append('<option value="">-- Selecciona Vuelo --</option>');
+                            $.each(response.flights, function (i, flight) {
+                                var flightText = flight.code + " " + flight.departureDesc + " - " + flight.destinationDesc + " " + flight.time + " " + flight.date;
+                                flightSelect.append('<option value="' + flightText + '">' + flightText + '</option>');
+                            });
+                            flightSelect.trigger('change');
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function () {
+                        alert("Error al cargar vuelos.");
+                    }
+                });
+            });
 
-              // Función para actualizar en tiempo real la hora en el elemento con id "currentDateTime".
-              function updateDateTime() {
-                  var now = new Date();
-                  var options = {
-                      year: 'numeric',
-                      month: '2-digit',
-                      day: '2-digit',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      second: '2-digit'
-                  };
-                  document.getElementById("currentDateTime").textContent = now.toLocaleDateString('es-ES', options);
-              }
-              setInterval(updateDateTime, 1000);
-              updateDateTime();
+            // Habilitar botón de generar mapa cuando se seleccione un vuelo
+            $('#flightSelect').on('change', function () {
+                var flightSelected = $(this).val();
+                $('#generateSeatsButton').prop('disabled', !flightSelected);
+            });
 
-              function parseFlightData(flightString) {
-                  var flightRegex = /^(?<code>\S+)\s+(?<departure>.+?)\s+-\s+(?<destination>.+?)\s+(?<time>\S+)\s+(?<date>\S+)$/;
-                  var match = flightString.match(flightRegex);
-                  if (match && match.groups) {
-                      return {
-                          code: match.groups.code,
-                          departure: match.groups.departure,
-                          destination: match.groups.destination,
-                          time: match.groups.time,
-                          date: match.groups.date
-                      };
-                  }
-                  return null;
-              }
+            // Al hacer clic en "Generar Mapa de Asientos", actualizar horarios y mapa de asientos sin recargar la página
+            $('#generateSeatsButton').click(function (e) {
+                e.preventDefault();  // Previene cualquier acción de submit o recarga
 
+                var flightText = $('#flightSelect').val();
+                if (!flightText) {
+                    alert("Seleccione un vuelo primero.");
+                    return;
+                }
+                // Extraer el código de vuelo; se asume que es la primera parte separada por espacio.
+                var flightCode = flightText.split(' ')[0];
 
+                $.ajax({
+                    url: '@Url.Action("GetSeatConfiguration", "Home")',
+                    type: 'POST',
+                    data: { flightCode: flightCode },
+                    success: function (response) {
+                        if (response.success) {
+                            // Actualizar el contenedor de horarios con la info devuelta
+                            if (response.flightInfo) {
+                                var ft = response.flightInfo;
+                                $('#flightTimes').html("Salida: " + ft.HoraSalida + " (" + ft.FechaSalida + ")<br/>Llegada: " + ft.HoraLlegada + " (" + ft.FechaLlegada + ")");
+                            }
+                            // Actualizar el mapa de asientos mediante petición al partial view
+                            $.ajax({
+                                url: '@Url.Action("SeatMapPartial", "Home")',
+                                type: 'GET',
+                                success: function (html) {
+                                    $('#seatMapContainer').html(html);
+                                },
+                                error: function () {
+                                    alert("Error al cargar el mapa de asientos.");
+                                }
+                            });
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function () {
+                        alert("Error al generar asientos.");
+                    }
+                });
+            });
+        });
+
+        // Función para actualizar en tiempo real la fecha/hora en "currentDateTime"
+        function updateDateTime() {
+            var now = new Date();
+            var options = {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            document.getElementById("currentDateTime").textContent = now.toLocaleDateString('es-ES', options);
+        }
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+
+        // Función auxiliar para parsear la cadena de vuelo (si se requiere)
+        function parseFlightData(flightString) {
+            var flightRegex = /^(?<code>\S+)\s+(?<departure>.+?)\s+-\s+(?<destination>.+?)\s+(?<time>\S+)\s+(?<date>\S+)$/;
+            var match = flightString.match(flightRegex);
+            if (match && match.groups) {
+                return {
+                    code: match.groups.code,
+                    departure: match.groups.departure,
+                    destination: match.groups.destination,
+                    time: match.groups.time,
+                    date: match.groups.date
+                };
+            }
+            return null;
+        }
+
+        // Funciones para el manejo de asientos y ticket (se mantienen sin cambios)
         var pasajeros = @Html.Raw(ViewBag.Pasajeros);
         var currentSeat = null;
         var currentSeatState = null;
