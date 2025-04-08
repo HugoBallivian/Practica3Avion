@@ -65,6 +65,9 @@
                         <option value="@flight">@flight</option>
                     }
                 </select>
+                <div class="mb-3">
+                    <button class="col-md-12" type="button" id="generateSeatsButton" disabled>Generar Mapa de Asientos</button>
+                </div>
             </div>
         </div>
         <div class="col-md-3">
@@ -267,6 +270,40 @@
                       });
                   });
               });
+
+                  // Id de vuelo y extraer asientos
+                  $('#flightSelect').on('change', function() {
+                      var flightSelected = $(this).val();
+                      $('#generateSeatsButton').prop('disabled', !flightSelected);
+                  });
+
+                  $('#generateSeatsButton').click(function() {
+                      var flightText = $('#flightSelect').val();
+                      if (!flightText) {
+                          alert("Seleccione un vuelo primero.");
+                          return;
+                      }
+
+                      // Extraer el código de vuelo (asumiendo formato "CODIGO Origen - Destino")
+                      var flightCode = flightText.split(' ')[0];
+
+                      $.ajax({
+                          url: '@Url.Action("GetSeatConfiguration", "Home")',
+                          type: 'POST',
+                          data: { flightCode: flightCode },
+                          success: function(response) {
+                              if (response.success) {
+                                  // Recargar la página con la nueva configuración de asientos
+                                  window.location.reload();
+                              } else {
+                                  alert(response.message);
+                              }
+                          },
+                          error: function() {
+                              alert("Error al generar asientos.");
+                          }
+                      });
+                  });
 
               // Función para actualizar en tiempo real la hora en el elemento con id "currentDateTime".
               function updateDateTime() {
