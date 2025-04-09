@@ -10,13 +10,13 @@
                     <div class="row-label">@row.RowLabel</div>
                     @foreach (var seat in row.Seats)
                     {
-                        if (seat.State == "empty")
+                        if (seat.State == null)
                         {
                             <div class="seat empty"></div>
                         }
                         else
                         {
-                            <div class="seat @seat.State" data-seat="@seat.SeatId" ondblclick="openSeatModal(this)">
+                            <div class="seat @seat.State" data-seat="@seat.SeatId" data-database-id="@seat.DatabaseId" ondblclick="openSeatModal(this)">
                                 @seat.SeatId
                             </div>
                         }

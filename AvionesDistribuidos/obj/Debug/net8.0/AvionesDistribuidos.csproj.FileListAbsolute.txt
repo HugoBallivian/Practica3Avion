@@ -990,3 +990,9 @@ C:\Users\Hugo\Documents\Practica3Avion\AvionesDistribuidos\obj\Debug\net8.0\refi
 C:\Users\Hugo\Documents\Practica3Avion\AvionesDistribuidos\obj\Debug\net8.0\AvionesDistribuidos.pdb
 C:\Users\Hugo\Documents\Practica3Avion\AvionesDistribuidos\obj\Debug\net8.0\AvionesDistribuidos.genruntimeconfig.cache
 C:\Users\Hugo\Documents\Practica3Avion\AvionesDistribuidos\obj\Debug\net8.0\ref\AvionesDistribuidos.dll
+C:\Univalle\Repositories\Practica3Avion\AvionesDistribuidos\bin\Debug\net8.0\DnsClient.dll
+C:\Univalle\Repositories\Practica3Avion\AvionesDistribuidos\bin\Debug\net8.0\MongoDB.Bson.dll
+C:\Univalle\Repositories\Practica3Avion\AvionesDistribuidos\bin\Debug\net8.0\MongoDB.Driver.dll
+C:\Univalle\Repositories\Practica3Avion\AvionesDistribuidos\bin\Debug\net8.0\SharpCompress.dll
+C:\Univalle\Repositories\Practica3Avion\AvionesDistribuidos\bin\Debug\net8.0\Snappier.dll
+C:\Univalle\Repositories\Practica3Avion\AvionesDistribuidos\bin\Debug\net8.0\ZstdSharp.dll

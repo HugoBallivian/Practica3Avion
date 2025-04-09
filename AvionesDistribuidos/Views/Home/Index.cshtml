@@ -191,7 +191,7 @@
                             @foreach (var seat in row.Seats)
                             {
                                 @* Si el asiento está vacío, mostramos un div vacío *@
-                                if (seat.State == "empty")
+                                if (seat.State == null)
                                 {
                                     <div class="seat empty"></div>
                                 }

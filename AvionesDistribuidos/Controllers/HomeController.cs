@@ -321,6 +321,14 @@ namespace AvionesDistribuidos.Controllers
                 var config = JsonConvert.DeserializeObject<dynamic>(TempData["SeatConfig"].ToString());
                 TempData.Keep("SeatConfig");
 
+                // Obtener ID de vuelo para cruzar con base de datos
+                int idVuelo = config.FlightId;
+
+                // Obtener los asientos de la base de datos para ese vuelo
+                var asientosDB = _context.Asientos
+                    .Where(a => a.VueloId == idVuelo)
+                    .ToDictionary(a => a.NumeroAsiento, a => a.Id);
+
                 // Mismos cálculos de filas y columnas que en Index()
                 char fcRowStart = 'A';
                 char fcRowEnd = config.LastRow1;
@@ -331,8 +339,8 @@ namespace AvionesDistribuidos.Controllers
                 int econColStart = config.LastCol1 + 1;
                 int econColEnd = config.LastCol2;
 
-                var firstClassRows = GenerateSeatRows(fcRowStart, fcRowEnd, fcColStart, fcColEnd);
-                var economyRows = GenerateSeatRows(econRowStart, econRowEnd, econColStart, econColEnd);
+                var firstClassRows = GenerateSeatRows(fcRowStart, fcRowEnd, fcColStart, fcColEnd, asientosDB);
+                var economyRows = GenerateSeatRows(econRowStart, econRowEnd, econColStart, econColEnd, asientosDB);
 
                 seatConfig = new List<SeatConfiguration>
                 {
@@ -401,6 +409,37 @@ namespace AvionesDistribuidos.Controllers
             }
             return rows;
         }
+
+        private List<SeatRow> GenerateSeatRows(char rowStart, char rowEnd, int colStart, int colEnd, Dictionary<string, int> asientosDB)
+        {
+            var rows = new List<SeatRow>();
+            for (char row = rowStart; row <= rowEnd; row++)
+            {
+                var seats = new List<Seat>();
+                for (int col = colStart; col <= colEnd; col++)
+                {
+                    var seatId = $"{row}{col:D2}"; // Ej: A01, B12
+
+                    var seat = new Seat
+                    {
+                        SeatId = seatId,
+                        State = 0 // estado inicial libre
+                    };
+
+                    if (asientosDB.TryGetValue(seatId, out var idAsiento))
+                    {
+                        seat.DatabaseId = idAsiento;
+                    }
+
+                    seats.Add(seat);
+                }
+
+                rows.Add(new SeatRow { RowLabel = row.ToString(), Seats = seats });
+            }
+
+            return rows;
+        }
+
 
         /// <summary>
         /// Configuración por defecto: Primera Clase A–F columnas 1–3, Económica A–F columnas 4–29.
