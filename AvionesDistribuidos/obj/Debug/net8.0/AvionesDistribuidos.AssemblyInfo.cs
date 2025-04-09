@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AvionesDistribuidos")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5aee01ff47174e7aa0e84b91cdc68d6b31726b56")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b4b10074f762efa6b10e900ad0816fc68cc93402")]
 [assembly: System.Reflection.AssemblyProductAttribute("AvionesDistribuidos")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AvionesDistribuidos")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

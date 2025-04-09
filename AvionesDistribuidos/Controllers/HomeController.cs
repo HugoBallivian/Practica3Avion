@@ -329,6 +329,11 @@ namespace AvionesDistribuidos.Controllers
                     .Where(a => a.VueloId == idVuelo)
                     .ToDictionary(a => a.NumeroAsiento, a => a.Id);
 
+                // Obtener los precios de los asientos de la base de datos para ese vuelo
+                var preciosAsientosDB = _context.Asientos
+                    .Where(a => a.VueloId == idVuelo)
+                    .ToDictionary(a => a.NumeroAsiento, a => a.Precio);
+
                 // Mismos cálculos de filas y columnas que en Index()
                 char fcRowStart = 'A';
                 char fcRowEnd = config.LastRow1;
@@ -339,8 +344,8 @@ namespace AvionesDistribuidos.Controllers
                 int econColStart = config.LastCol1 + 1;
                 int econColEnd = config.LastCol2;
 
-                var firstClassRows = GenerateSeatRows(fcRowStart, fcRowEnd, fcColStart, fcColEnd, asientosDB);
-                var economyRows = GenerateSeatRows(econRowStart, econRowEnd, econColStart, econColEnd, asientosDB);
+                var firstClassRows = GenerateSeatRows(fcRowStart, fcRowEnd, fcColStart, fcColEnd, asientosDB, preciosAsientosDB);
+                var economyRows = GenerateSeatRows(econRowStart, econRowEnd, econColStart, econColEnd, asientosDB, preciosAsientosDB);
 
                 seatConfig = new List<SeatConfiguration>
                 {
@@ -410,7 +415,7 @@ namespace AvionesDistribuidos.Controllers
             return rows;
         }
 
-        private List<SeatRow> GenerateSeatRows(char rowStart, char rowEnd, int colStart, int colEnd, Dictionary<string, int> asientosDB)
+        private List<SeatRow> GenerateSeatRows(char rowStart, char rowEnd, int colStart, int colEnd, Dictionary<string, int> asientosDB, Dictionary<string, decimal> preciosAsientosDB)
         {
             var rows = new List<SeatRow>();
             for (char row = rowStart; row <= rowEnd; row++)
@@ -429,6 +434,10 @@ namespace AvionesDistribuidos.Controllers
                     if (asientosDB.TryGetValue(seatId, out var idAsiento))
                     {
                         seat.DatabaseId = idAsiento;
+                    }
+                    if (preciosAsientosDB.TryGetValue(seatId, out var priceAsiento))
+                    {
+                        seat.Price = priceAsiento;
                     }
 
                     seats.Add(seat);

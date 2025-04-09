@@ -465,6 +465,7 @@
 
             // Mostramos el ID de asiento en el modal
             var seatId = seatElement.getAttribute("data-seat");
+            var seatPrice = seatElement.getAttribute("data-price");
             document.getElementById("modalSeatId").textContent = seatId;
 
             var modalBody = document.getElementById("modalBody");
@@ -472,6 +473,7 @@
 
             // Detalle básico del asiento
             modalBody.innerHTML += '<p><strong>Asiento:</strong> ' + seatId + '</p>';
+            modalBody.innerHTML += '<p><strong>Precio:</strong> ' + seatPrice + '</p>';
             modalBody.innerHTML += '<p><strong>Estado:</strong> ' + currentSeatState + '</p>';
 
             // Si está libre, permitimos buscar pasajero
