@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Dell\\Downloads\\Practica3Avion-main\\Practica3Avion-main\\AvionesDistribuidos\\AvionesDistribuidos.csproj": {}
+    "C:\\Users\\Dell\\Downloads\\Dsitribuidos\\Practica3Avion\\AvionesDistribuidos\\AvionesDistribuidos.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Dell\\Downloads\\Practica3Avion-main\\Practica3Avion-main\\AvionesDistribuidos\\AvionesDistribuidos.csproj": {
+    "C:\\Users\\Dell\\Downloads\\Dsitribuidos\\Practica3Avion\\AvionesDistribuidos\\AvionesDistribuidos.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Dell\\Downloads\\Practica3Avion-main\\Practica3Avion-main\\AvionesDistribuidos\\AvionesDistribuidos.csproj",
+        "projectUniqueName": "C:\\Users\\Dell\\Downloads\\Dsitribuidos\\Practica3Avion\\AvionesDistribuidos\\AvionesDistribuidos.csproj",
         "projectName": "AvionesDistribuidos",
-        "projectPath": "C:\\Users\\Dell\\Downloads\\Practica3Avion-main\\Practica3Avion-main\\AvionesDistribuidos\\AvionesDistribuidos.csproj",
+        "projectPath": "C:\\Users\\Dell\\Downloads\\Dsitribuidos\\Practica3Avion\\AvionesDistribuidos\\AvionesDistribuidos.csproj",
         "packagesPath": "C:\\Users\\Dell\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Dell\\Downloads\\Practica3Avion-main\\Practica3Avion-main\\AvionesDistribuidos\\obj\\",
+        "outputPath": "C:\\Users\\Dell\\Downloads\\Dsitribuidos\\Practica3Avion\\AvionesDistribuidos\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Dell\\AppData\\Roaming\\NuGet\\NuGet.Config",

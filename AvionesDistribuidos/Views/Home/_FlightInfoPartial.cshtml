@@ -1,0 +1,33 @@
+﻿@using Newtonsoft.Json
+
+<div class="row flight-info mt-4">
+    <div class="col-md-4">
+        <label>Ruta del vuelo:</label>
+        <div id="flightRoute">
+            @(TempData["FlightInfo"] != null
+                ? JsonConvert.DeserializeObject<dynamic>(TempData["FlightInfo"].ToString()).Origen + " - " +
+                JsonConvert.DeserializeObject<dynamic>(TempData["FlightInfo"].ToString()).Destino
+                : "Seleccione un vuelo")
+        </div>
+    </div>
+    <div class="col-md-4">
+        <label>Horarios:</label>
+        <div id="flightTimes">
+            @if (TempData["FlightInfo"] != null)
+            {
+                var flightInfo = JsonConvert.DeserializeObject<dynamic>(TempData["FlightInfo"].ToString());
+                <text>
+                    Salida: @flightInfo.HoraSalida (@flightInfo.FechaSalida)<br />
+                    Llegada: @flightInfo.HoraLlegada (@flightInfo.FechaLlegada)
+                </text>
+            }
+            else
+            {
+                <text>
+                    Salida: --:--<br />
+                    Llegada: --/---/----
+                </text>
+            }
+        </div>
+    </div>
+</div>
