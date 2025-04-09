@@ -1,46 +1,80 @@
+﻿using AvionesDistribuidos.Data;
 using AvionesDistribuidos.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System.Diagnostics;
-using Nager.Country;
+using System.IO;
 using System.Linq;
+using System.Collections.Generic;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using MaxMind.GeoIP2.Model;
 
 namespace AvionesDistribuidos.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly ApplicationDbContext _context;
+        private readonly ConnectionResolver _resolver;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, ConnectionResolver resolver)
         {
             _logger = logger;
+            _context = context;
+            _resolver = resolver;          
         }
 
-        public IActionResult Index()
-        {
-            var countryProvider = new CountryProvider();
-            var countries = countryProvider.GetCountries().ToList();
+        public async Task<IActionResult> Index(string country)
+        {   
+            _logger.LogInformation($"Método Index ejecutado con continente: {country}");
 
-            var countryList = countries.Select(c => new CountryViewModel
+            var jsonPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "country-by-continent.json");
+            var jsonData = System.IO.File.ReadAllText(jsonPath);
+            var data = JsonConvert.DeserializeObject<Dictionary<string, List<CountryJson>>>(jsonData);
+
+            ViewBag.Countries = data;
+            string continent = "Default";
+
+            var countriesGrouped = data.Select(c => new
             {
-                Name = c.CommonName,
-                Capital = "Sin informaci�n"
+                Continent = c.Key,
+                Countries = c.Value.Select(x => x.country).ToList()
             }).ToList();
+
+
+            if (!string.IsNullOrEmpty(country))
+            {
+                continent = data.FirstOrDefault(x => x.Value.Any(c => c.country == country)).Key;   
+                    TempData["Message"] = $"Conexión cambiada a la base de datos de {continent}";
+                    _logger.LogInformation($"Solicitando conexión para continente: {continent}");
+                
+            }
+            else
+            {
+                // Primer país como default
+                country = countriesGrouped.First().Countries.First();
+                continent = data.FirstOrDefault(x => x.Value.Any(p => p.country == country)).Key ?? "Default";
+            }
+
+            ViewBag.SelectedCountry = country;
+
+            ViewBag.Countries = countriesGrouped;
 
             var flights = new List<string>
             {
                 "B-101 Ucrania(Kiev) - Bolivia(Cochabamba) 18:55 20/Abr/2025",
-                "A-205 Espa�a(Madrid) - Argentina(Buenos Aires) 09:30 15/Abr/2025"
+                "A-205 España(Madrid) - Argentina(Buenos Aires) 09:30 15/Abr/2025"
             };
-
-            ViewBag.Countries = countryList;
             ViewBag.Flights = flights;
 
+            var destinosList = _context.Destinos.ToList();
+            ViewBag.Destinos = destinosList;
 
             char fcRowStart = 'A';
-            char fcRowEnd = 'F'; 
+            char fcRowEnd = 'F';
             int fcColStart = 1;
-            int fcColEnd = 3;   
-
+            int fcColEnd = 3;
             var firstClassRows = new List<SeatRow>();
             for (char row = fcRowStart; row <= fcRowEnd; row++)
             {
@@ -51,16 +85,22 @@ namespace AvionesDistribuidos.Controllers
             }
 
             char econRowStart = 'A';
-            char econRowEnd = 'F'; 
+            char econRowEnd = 'F';
             int econColStart = 4;
-            int econColEnd = 29;  
-
+            int econColEnd = 29;
             var economyRows = new List<SeatRow>();
             for (char row = econRowStart; row <= econRowEnd; row++)
             {
                 var seats = Enumerable.Range(econColStart, econColEnd - econColStart + 1)
-                    .Select(col => new Seat { SeatId = $"{row}{col.ToString("D2")}" })
-                    .ToList();
+                    .Select(col =>
+                    {
+                        var seat = new Seat { SeatId = $"{row}{col.ToString("D2")}" };
+                        if ((row == 'A' || row == 'F') && seat.SeatId.EndsWith("10"))
+                        {
+                            seat.State = "empty";
+                        }
+                        return seat;
+                    }).ToList();
                 economyRows.Add(new SeatRow { RowLabel = row.ToString(), Seats = seats });
             }
 
@@ -73,14 +113,126 @@ namespace AvionesDistribuidos.Controllers
                 },
                 new SeatConfiguration
                 {
-                    SectionName = "Econ�mica",
+                    SectionName = "Económica",
                     Rows = economyRows
                 }
             };
 
+            int totalAsientos = firstClassRows.Sum(r => r.Seats.Count) + economyRows.Sum(r => r.Seats.Count);
+            if (totalAsientos < 8 || totalAsientos > 853)
+            {
+                throw new Exception($"La configuración de asientos es inválida: total {totalAsientos} asientos. Debe estar entre 8 y 853.");
+            }
             ViewBag.SeatConfig = seatConfig;
 
+            var pasajerosList = _context.Pasajeros.ToList();
+            var pasajerosDict = pasajerosList.ToDictionary(
+                p => "P" + p.numero_pasaporte.ToString(),
+                p => p.nombre_completo);
+            ViewBag.Pasajeros = JsonConvert.SerializeObject(pasajerosDict);
+            _logger.LogInformation($"Solicitando conexión para continente: {continent}");
+            var databaseService = _resolver.GetDatabaseService(continent);
+            var paises = await databaseService.GetPaisesAsync();
+            ViewBag.Paises = paises;
+
             return View();
+        }
+
+        [HttpPost]
+        public IActionResult BuscarPasajero([FromForm] string passport)
+        {
+            if (string.IsNullOrWhiteSpace(passport))
+            {
+                return Json(new { success = false, message = "El campo de pasaporte es obligatorio." });
+            }
+            if (!int.TryParse(passport, out int numeroPasaporte))
+            {
+                return Json(new { success = false, message = "Número de pasaporte inválido." });
+            }
+
+            var pasajeroExistente = _context.Pasajeros.FirstOrDefault(p => p.numero_pasaporte == numeroPasaporte);
+            if (pasajeroExistente != null)
+            {
+                return Json(new { success = true, passenger = pasajeroExistente.nombre_completo });
+            }
+            else
+            {
+                return Json(new { success = false, message = "Pasaporte no encontrado." });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult ValidarPasajero([FromForm] string passport, [FromForm] string passenger)
+        {
+            if (string.IsNullOrWhiteSpace(passport) || string.IsNullOrWhiteSpace(passenger))
+            {
+                return Json(new { success = false, message = "Los campos de Pasaporte y Pasajero son obligatorios." });
+            }
+
+            if (!int.TryParse(passport, out int numeroPasaporte))
+            {
+                return Json(new { success = false, message = "Número de pasaporte inválido." });
+            }
+
+            var pasajeroExistente = _context.Pasajeros.FirstOrDefault(p => p.numero_pasaporte == numeroPasaporte);
+            if (pasajeroExistente != null)
+            {
+                return Json(new { success = true, passenger = pasajeroExistente.nombre_completo });
+            }
+            else
+            {
+                var nuevoPasajero = new Pasajero
+                {
+                    numero_pasaporte = numeroPasaporte,
+                    nombre_completo = passenger
+                };
+                _context.Pasajeros.Add(nuevoPasajero);
+                _context.SaveChanges();
+                return Json(new { success = true, passenger = nuevoPasajero.nombre_completo });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult GetFlights([FromForm] string departure, [FromForm] string destination, [FromForm] string date)
+        {
+            var query = from v in _context.Set<Vuelo>()
+                        join r in _context.Set<RutaComercial>() on v.RutaId equals r.Id
+                        join d1 in _context.Destinos on r.CiudadOrigenId equals d1.Id
+                        join d2 in _context.Destinos on r.CiudadDestinoId equals d2.Id
+                        select new { v, d1, d2 };
+
+            if (!string.IsNullOrWhiteSpace(departure) && !string.IsNullOrWhiteSpace(destination))
+            {
+                query = query.Where(x => x.d1.descripcion_corta == departure && x.d2.descripcion_corta == destination);
+            }
+
+            if (!string.IsNullOrWhiteSpace(date))
+            {
+                if (DateTime.TryParse(date, out DateTime flightDate))
+                {
+                    query = query.Where(x => x.v.FechaSalida.Date == flightDate.Date);
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Fecha inválida." });
+                }
+            }
+
+            var vuelos = query.Select(x => new
+            {
+                code = x.v.CodigoVuelo,
+                departureDesc = x.d1.descripcion_corta,
+                destinationDesc = x.d2.descripcion_corta,
+                time = x.v.FechaSalida.ToString("HH:mm"),
+                date = x.v.FechaSalida.ToString("dd/MMM/yyyy")
+            }).ToList();
+
+            if (vuelos.Count == 0)
+            {
+                return Json(new { success = false, message = "No se encontraron vuelos." });
+            }
+
+            return Json(new { success = true, flights = vuelos });
         }
 
         public IActionResult Privacy()
@@ -91,7 +243,10 @@ namespace AvionesDistribuidos.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View(new ErrorViewModel
+            {
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+            });
         }
     }
 }

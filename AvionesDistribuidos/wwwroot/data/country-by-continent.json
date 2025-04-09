@@ -1,0 +1,35 @@
+{
+    "America": [
+        { "country": "Bolivia" },
+        { "country": "Argentina" },
+        { "country": "Brasil" },
+        { "country": "Chile" },
+        { "country": "Peru" },
+        { "country": "Colombia" },
+        { "country": "Mexico" },
+        { "country": "Estados Unidos" },
+        { "country": "Canada" }
+    ],
+    "Europa": [
+        { "country": "España" },
+        { "country": "Francia" },
+        { "country": "Alemania" },
+        { "country": "Italia" },
+        { "country": "Reino Unido" },
+        { "country": "Portugal" },
+        { "country": "Ucrania" },
+        { "country": "Suiza" },
+        { "country": "Grecia" }
+    ],
+    "Asia": [
+        { "country": "China" },
+        { "country": "Japon" },
+        { "country": "Corea del Sur" },
+        { "country": "India" },
+        { "country": "Tailandia" },
+        { "country": "Filipinas" },
+        { "country": "Vietnam" },
+        { "country": "Indonesia" },
+        { "country": "Arabia Saudita" }
+    ]
+}

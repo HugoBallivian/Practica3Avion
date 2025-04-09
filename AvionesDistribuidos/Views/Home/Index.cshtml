@@ -2,49 +2,123 @@
     ViewData["Title"] = "Home Page";
     var countries = ViewBag.Countries as List<AvionesDistribuidos.Models.CountryViewModel>;
     var flights = ViewBag.Flights as List<string>;
+    var destinos = ViewBag.Destinos as List<AvionesDistribuidos.Models.Destino>;
 }
+
 <div class="container">
     <h1>Reservación de Vuelos</h1>
+    <br />
+    <div class="row mb-9">
+        <div class="col-md-9">
+            <div class="mb-3">
+                <label for="countrySelect">Estoy comprando desde:</label>
+                <br />
+                <br />
+                <select id="countrySelect" class="form-select">
+                    @foreach (var group in ViewBag.Countries)
+                    {
+                        <optgroup label="@group.Continent">
+                            @foreach (var country in group.Countries)
+                            {
+                                var selected = country == ViewBag.SelectedCountry ? "selected=\"selected\"" : "";
+                                @Html.Raw($"<option value=\"{country}\" {selected}>{country}</option>")
+                            }
+                        </optgroup>
+                    }
+                </select>
 
-    <div class="row mb-3">
-        <div class="col-12">
-            <label for="countrySelect">Selecciona País (Ciudad - País)</label>
-            <select id="countrySelect" class="form-select">
-                <option value="">-- Selecciona --</option>
-                @foreach (var country in ViewBag.Countries as List<AvionesDistribuidos.Models.CountryViewModel>)
-                {
-                    <option value="@country.Name">@country.Capital - @country.Name</option>
-                }
-            </select>
+                <span id="currentDateTime" style="margin-left:10px; font-weight:bold;"></span>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="departureSelect">País de Salida</label>
+                    <br />
+                    <select id="departureSelect" name="continent"  class="form-select">
+                        <option value="">-- Selecciona País de Salida --</option>
+                        @foreach (var dest in destinos)
+                        {
+                            <option value="@dest.descripcion_corta">@dest.descripcion_corta</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="destinationSelect">Destino</label>
+                    <br />
+                    <select id="destinationSelect" class="form-select">
+                        <option value="">-- Selecciona Destino --</option>
+                        @foreach (var dest in destinos)
+                        {
+                            <option value="@dest.descripcion_corta">@dest.descripcion_corta</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="dateSelect">Fecha</label>
+                    <br />
+                    <input type="date" id="dateSelect" class="form-control" min="2025-03-01" max="2025-12-31" />
+                </div>
+            </div>
+            <br />
+            <button class="col-md-12" type="button" id="loadFlightsButton">Cargar Vuelos</button>
+            <br />
+            <br />
+            <div class="mb-3">
+                <label for="flightSelect">Selecciona Vuelo</label>
+                <br />
+                <select id="flightSelect" class="form-select" disabled="disabled">
+                    <option value="">-- Selecciona Vuelo --</option>
+                    @foreach (var flight in flights)
+                    {
+                        <option value="@flight">@flight</option>
+                    }
+                </select>
+            </div>
         </div>
-    </div>
-
-    <div class="row mb-3">
-        <div class="col-12">
-            <label for="flightSelect">Selecciona Vuelo</label>
-            <select id="flightSelect" class="form-select">
-                <option value="">-- Selecciona Vuelo --</option>
-                @foreach(var flight in flights)
-                {
-                    <option value="@flight">@flight</option>
-                }
-            </select>
+        <div class="col-md-3">
+            <h5 style="font-size:16px; margin-bottom:10px;">Estado de Asientos</h5>
+            <table style="width: auto; border-collapse: collapse;">
+                <tr>
+                    <td style="padding: 4px;">
+                        <div style="width:15px; height:15px; background-color:blue; display:inline-block;"></div>
+                    </td>
+                    <td style="font-size:14px; padding-left: 5px;">Libre</td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px;">
+                        <div style="width:15px; height:15px; background-color:green; display:inline-block;"></div>
+                    </td>
+                    <td style="font-size:14px; padding-left: 5px;">Vendido</td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px;">
+                        <div style="width:15px; height:15px; background-color:yellow; display:inline-block;"></div>
+                    </td>
+                    <td style="font-size:14px; padding-left: 5px;">Reserva</td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px;">
+                        <div style="width:15px; height:15px; background-color:red; display:inline-block;"></div>
+                    </td>
+                    <td style="font-size:14px; padding-left: 5px;">Devolución</td>
+                </tr>
+            </table>
+            <p style="font-size:14px; margin-top:8px;">Hacer click 2 veces en el asiento que vas a escoger</p>
         </div>
     </div>
 
     <hr />
     <h2>Mapa de Asientos</h2>
     <div class="seat-container">
-        @foreach(var section in ViewBag.SeatConfig as List<AvionesDistribuidos.Models.SeatConfiguration>)
+        @foreach (var section in ViewBag.SeatConfig as List<AvionesDistribuidos.Models.SeatConfiguration>)
         {
             <div class="seat-section @(section.SectionName.Replace(" ", "").ToLower())">
-                @foreach(var row in section.Rows)
+                @foreach (var row in section.Rows)
                 {
                     <div class="seat-row">
                         <div class="row-label">@row.RowLabel</div>
-                        @foreach(var seat in row.Seats)
+                        @foreach (var seat in row.Seats)
                         {
-                            if(seat.State == "empty")
+                            if (seat.State == "empty")
                             {
                                 <div class="seat empty"></div>
                             }
@@ -65,9 +139,60 @@
         <div class="modal-content">
             <span class="close" onclick="closeSeatModal()">&times;</span>
             <h3>Modificar Estado del Asiento <span id="modalSeatId"></span></h3>
-            <div id="modalBody">
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <div id="ticketModal" class="modal">
+        <div class="modal-content" id="ticketModalContent" style="text-align:left;">
+            <span class="close" onclick="closeTicketModal()">&times;</span>
+            <div style="border: 2px dashed #aaa; padding: 15px; border-radius: 6px; font-family: sans-serif;">
+                <div style="text-align:center; margin-bottom: 10px;">
+                    <h2 style="margin:0; font-size:1.4rem; font-weight:bold;">BOARDING PASS</h2>
+                    <p style="margin:0; font-size:0.9rem;">(Demostración de Ticket)</p>
+                </div>
+                <hr style="margin:10px 0; border:none; border-top:1px solid #ccc;" />
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <div>
+                        <span style="font-weight:bold;">Pasajero:</span>
+                        <span id="tkPassengerName"></span>
+                    </div>
+                    <div>
+                        <span style="font-weight:bold;">Vuelo:</span>
+                        <span id="tkFlightCode"></span>
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <div>
+                        <span style="font-weight:bold;">Origen:</span>
+                        <span id="tkFrom"></span>
+                    </div>
+                    <div>
+                        <span style="font-weight:bold;">Destino:</span>
+                        <span id="tkTo"></span>
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <div>
+                        <span style="font-weight:bold;">Fecha:</span>
+                        <span id="tkDate"></span>
+                    </div>
+                    <div>
+                        <span style="font-weight:bold;">Hora:</span>
+                        <span id="tkTime"></span>
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <div>
+                        <span style="font-weight:bold;">Asiento:</span>
+                        <span id="tkSeat"></span>
+                    </div>
+                </div>
+                <hr style="margin:10px 0; border:none; border-top:1px solid #ccc;" />
+                <p style="font-size:0.85rem; margin:0; text-align:center;">
+                    Gracias por viajar con nosotros. ¡Buen viaje!
+                </p>
             </div>
-            <button onclick="saveSeatChange()" class="modal-save">Guardar</button>
         </div>
     </div>
 
@@ -83,72 +208,270 @@
                 Llegada: 20/Abr/2025
             </div>
         </div>
-        <div class="col-md-4">
-            <label>Origen / Destino:</label>
-            <div id="flightCities">
-                Origen: Ucrania (Kiev)<br />
-                Destino: Bolivia (Cochabamba)
-            </div>
-        </div>
     </div>
 </div>
 
-<div id="seatModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeSeatModal()">&times;</span>
-        <h3>Modificar Estado del Asiento <span id="modalSeatId"></span></h3>
-        <div id="modalBody">
-        </div>
-        <button onclick="saveSeatChange()">Guardar</button>
-    </div>
-</div>
 @section Scripts
 {
-    <script>
+        < <script>
+              $(document).ready(function () {
+                  $('#countrySelect').select2({
+                      placeholder: "-- Selecciona --",
+                      allowClear: true,
+                      width: 'resolve'
+                  });
+                  $('#departureSelect').select2({
+                      placeholder: "-- Selecciona País de Salida --",
+                      allowClear: true,
+                      width: 'resolve'
+                  });
+                  $('#destinationSelect').select2({
+                      placeholder: "-- Selecciona Destino --",
+                      allowClear: true,
+                      width: 'resolve'
+                  });
+                  $('#flightSelect').select2({
+                      placeholder: "-- Selecciona Vuelo --",
+                      allowClear: true,
+                      width: 'resolve'
+                  });
+
+                  $('#flightSelect').prop("disabled", true);
+
+                  $('#loadFlightsButton').click(function () {
+                      // Obtiene los valores de los campos.
+                      var departure = $('#departureSelect').val();
+                      var destination = $('#destinationSelect').val();
+                      var date = $('#dateSelect').val();
+
+                      if (departure === "" && destination === "" && date === "") {
+                          alert("Ingrese al menos un criterio de búsqueda (País de Salida y Destino, o Fecha).");
+                          return;
+                      }
+
+                      $.ajax({
+                          url: '@Url.Action("GetFlights", "Home")',
+                          type: 'POST',
+                          data: { departure: departure, destination: destination, date: date },
+                          success: function (response) {
+                              if (response.success) {
+                                  var flightSelect = $('#flightSelect');
+                                  flightSelect.empty();
+                                  flightSelect.removeAttr("disabled");
+                                  flightSelect.append('<option value="">-- Selecciona Vuelo --</option>');
+                                  $.each(response.flights, function (i, flight) {
+                                      var flightText = flight.code + " " + flight.departureDesc + " - " + flight.destinationDesc + " " + flight.time + " " + flight.date;
+                                      flightSelect.append('<option value="' + flightText + '">' + flightText + '</option>');
+                                  });
+                                  flightSelect.trigger('change');
+                              } else {
+                                  alert(response.message);
+                              }
+                          },
+                          error: function () {
+                              alert("Error al cargar vuelos.");
+                          }
+                      });
+                  });
+              });
+
+              // Función para actualizar en tiempo real la hora en el elemento con id "currentDateTime".
+              function updateDateTime() {
+                  var now = new Date();
+                  var options = {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      second: '2-digit'
+                  };
+                  document.getElementById("currentDateTime").textContent = now.toLocaleDateString('es-ES', options);
+              }
+              setInterval(updateDateTime, 1000);
+              updateDateTime();
+
+              function parseFlightData(flightString) {
+                  var flightRegex = /^(?<code>\S+)\s+(?<departure>.+?)\s+-\s+(?<destination>.+?)\s+(?<time>\S+)\s+(?<date>\S+)$/;
+                  var match = flightString.match(flightRegex);
+                  if (match && match.groups) {
+                      return {
+                          code: match.groups.code,
+                          departure: match.groups.departure,
+                          destination: match.groups.destination,
+                          time: match.groups.time,
+                          date: match.groups.date
+                      };
+                  }
+                  return null;
+              }
+
+
+        var pasajeros = @Html.Raw(ViewBag.Pasajeros);
         var currentSeat = null;
         var currentSeatState = null;
-        var newSeatState = null;
 
         function openSeatModal(seatElement) {
             currentSeat = seatElement;
             currentSeatState = getSeatState(seatElement);
-            document.getElementById("modalSeatId").textContent = seatElement.getAttribute("data-seat");
+
+            if (currentSeatState === "venta") {
+                openTicketModal();
+                return;
+            }
+
+            var seatId = seatElement.getAttribute("data-seat");
+            document.getElementById("modalSeatId").textContent = seatId;
             var modalBody = document.getElementById("modalBody");
             modalBody.innerHTML = "";
 
-            // Según el estado actual se muestran las opciones válidas
+            modalBody.innerHTML += '<p style="text-align:left;"><strong>Asiento:</strong> ' + seatId + '</p>';
+            modalBody.innerHTML += '<p style="text-align:left;"><strong>Estado:</strong> ' + currentSeatState + '</p>';
+
             if (currentSeatState === "libre") {
-                modalBody.innerHTML += '<button onclick="setNewState(\'reserva\')" class="modal-btn reserva-btn">Reserva</button>';
-                modalBody.innerHTML += '<button onclick="setNewState(\'venta\')" class="modal-btn venta-btn">Venta</button>';
-            } else if (currentSeatState === "reserva") {
-                modalBody.innerHTML += '<button onclick="setNewState(\'venta\')" class="modal-btn venta-btn">Venta</button>';
-                modalBody.innerHTML += '<button onclick="setNewState(\'devolucion\')" class="modal-btn devolucion-btn">Devolución</button>';
-            } else if (currentSeatState === "venta") {
-                modalBody.innerHTML = "<p>Asiento vendido. No se permiten cambios.</p>";
-            } else if (currentSeatState === "devolucion") {
-                modalBody.innerHTML += '<button onclick="setNewState(\'libre\')" class="modal-btn libre-btn">Libre</button>';
+                modalBody.innerHTML += '<div id="passportSection" style="text-align:left; margin-bottom:10px;">' +
+                    '<label>Pasaporte:</label> ' +
+                    '<input type="text" id="passportInput" /> ' +
+                    '<button type="button" onclick="buscarPasajero()">Buscar</button>' +
+                    '</div>';
+                modalBody.innerHTML += '<div id="passengerSection" style="text-align:left; margin-bottom:10px;">' +
+                    '<label>Pasajero:</label> ' +
+                    '<input type="text" id="passengerInput" disabled /> ' +
+                    '</div>';
+            } else if (currentSeatState === "reserva" || currentSeatState === "devolucion") {
+                var passportVal = seatElement.getAttribute("data-passport") || "";
+                var passengerVal = seatElement.getAttribute("data-passenger") || "";
+                modalBody.innerHTML += '<p style="text-align:left;">Pasaporte: ' + passportVal + '</p>';
+                modalBody.innerHTML += '<p style="text-align:left;">Pasajero: ' + passengerVal + '</p>';
             }
+
+            modalBody.innerHTML += '<div id="stateButtons" style="text-align:center; margin-top:10px;">';
+            if (currentSeatState === "libre") {
+                modalBody.innerHTML += '<button type="button" class="modal-btn reserva-btn" style="display:block; width:100%; margin-bottom:10px;" onclick="changeSeatState(\'reserva\')">Reserva</button>';
+                modalBody.innerHTML += '<button type="button" class="modal-btn venta-btn" style="display:block; width:100%; margin-bottom:10px;" onclick="changeSeatState(\'venta\')">Venta</button>';
+            } else if (currentSeatState === "reserva") {
+                modalBody.innerHTML += '<button type="button" class="modal-btn venta-btn" style="display:block; width:100%; margin-bottom:10px;" onclick="changeSeatState(\'venta\')">Venta</button>';
+                modalBody.innerHTML += '<button type="button" class="modal-btn devolucion-btn" style="display:block; width:100%; margin-bottom:10px;" onclick="changeSeatState(\'devolucion\')">Devolución</button>';
+            } else if (currentSeatState === "devolucion") {
+                modalBody.innerHTML += '<button type="button" class="modal-btn libre-btn" style="display:block; width:100%; margin-bottom:10px;" onclick="changeSeatState(\'libre\')">Libre</button>';
+            }
+            modalBody.innerHTML += '</div>';
+
             document.getElementById("seatModal").style.display = "block";
         }
 
-        function setNewState(state) {
-            newSeatState = state;
+        function buscarPasajero() {
+            var passport = document.getElementById("passportInput").value.trim();
+            var passengerInput = document.getElementById("passengerInput");
+            if (passport === "") {
+                alert("Ingrese un número de pasaporte.");
+                return;
+            }
+            $.ajax({
+                url: '@Url.Action("BuscarPasajero", "Home")',
+                type: 'POST',
+                data: { passport: passport },
+                success: function (response) {
+                    if (response.success) {
+                        passengerInput.value = response.passenger;
+                        passengerInput.disabled = true;
+                    } else {
+                        passengerInput.value = "";
+                        passengerInput.disabled = false;
+                        alert("Pasaporte no encontrado. Ingrese el nombre del pasajero.");
+                    }
+                },
+                error: function () {
+                    alert("Error al buscar el pasajero.");
+                }
+            });
         }
 
-        function saveSeatChange() {
-            if (newSeatState && currentSeat) {
-                currentSeat.classList.remove("libre", "reserva", "venta", "devolucion");
-                currentSeat.classList.add(newSeatState);
-                newSeatState = null;
-                currentSeat = null;
-                closeSeatModal();
-            } else {
-                alert("No se seleccionó un nuevo estado válido.");
+        function changeSeatState(newState) {
+            if (currentSeatState === "devolucion" && newState !== "libre") {
+                alert("Sólo se puede cambiar a Libre desde Devolución.");
+                return;
             }
+
+            if (currentSeatState === "libre" && (newState === "reserva" || newState === "venta")) {
+                var passport = document.getElementById("passportInput").value.trim();
+                var passenger = document.getElementById("passengerInput").value.trim();
+                if (passport === "" || passenger === "") {
+                    alert("Debe completar los campos de Pasaporte y Pasajero.");
+                    return;
+                }
+                $.ajax({
+                    url: '@Url.Action("ValidarPasajero", "Home")',
+                    type: 'POST',
+                    data: { passport: passport, passenger: passenger },
+                    success: function (response) {
+                        if (response.success) {
+                            document.getElementById("passengerInput").value = response.passenger;
+                            currentSeat.setAttribute("data-passport", passport);
+                            currentSeat.setAttribute("data-passenger", response.passenger);
+
+                            currentSeat.classList.remove("libre", "reserva", "venta", "devolucion");
+                            currentSeat.classList.add(newState);
+                            if (newState === "venta") {
+                                closeSeatModal();
+                                openTicketModal();
+                            } else {
+                                closeSeatModal();
+                            }
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function () {
+                        alert("Error al validar el pasajero.");
+                    }
+                });
+            }
+            else {
+                currentSeat.classList.remove("libre", "reserva", "venta", "devolucion");
+                currentSeat.classList.add(newState);
+                if (newState === "venta") {
+                    closeSeatModal();
+                    openTicketModal();
+                } else {
+                    closeSeatModal();
+                }
+            }
+        }
+
+        function openTicketModal() {
+            var selectedFlight = document.getElementById("flightSelect").value;
+            if (!selectedFlight) {
+                alert("No se ha seleccionado un vuelo. Por favor, selecciona uno.");
+                return;
+            }
+            var flightData = parseFlightData(selectedFlight);
+            if (!flightData) {
+                alert("El formato del vuelo no es válido.");
+                return;
+            }
+            var passengerName = currentSeat.getAttribute("data-passenger") || "Sin nombre";
+            var seatId = currentSeat.getAttribute("data-seat");
+            document.getElementById("tkPassengerName").innerText = passengerName;
+            document.getElementById("tkFlightCode").innerText = flightData.code;
+            document.getElementById("tkFrom").innerText = flightData.departure;
+            document.getElementById("tkTo").innerText = flightData.destination;
+            document.getElementById("tkDate").innerText = flightData.date;
+            document.getElementById("tkTime").innerText = flightData.time;
+            document.getElementById("tkSeat").innerText = seatId;
+            document.getElementById("ticketModal").style.display = "block";
         }
 
         function closeSeatModal() {
             document.getElementById("seatModal").style.display = "none";
+            currentSeat = null;
+            currentSeatState = null;
+        }
+
+        function closeTicketModal() {
+            document.getElementById("ticketModal").style.display = "none";
+            currentSeat = null;
+            currentSeatState = null;
         }
 
         function getSeatState(seatElement) {
@@ -160,10 +483,34 @@
         }
 
         window.onclick = function (event) {
-            var modal = document.getElementById("seatModal");
-            if (event.target == modal) {
+            var modal1 = document.getElementById("seatModal");
+            var modal2 = document.getElementById("ticketModal");
+            if (event.target == modal1) {
                 closeSeatModal();
             }
+            if (event.target == modal2) {
+                closeTicketModal();
+            }
         }
+    </script>
+
+    <script>
+        $('#countrySelect').change(function () {
+            var selectedCountry = $(this).val();
+            if (selectedCountry) {
+                window.location.href = '@Url.Action("Index", "Home")?country=' + selectedCountry;
+            }
+        });
+    </script>
+
+
+    <script>
+        document.getElementById('countrySelect').addEventListener('change', function () {
+            var selectedContinent = this.value;
+
+            if (selectedContinent) {
+                window.location.href = '/Home/Index?continent=' + selectedContinent;
+            }
+        });
     </script>
 }
