@@ -32,5 +32,11 @@ namespace AvionesDistribuidos.Models
         [Required]
         [Column("distancia_km")]
         public int DistanciaKm { get; set; }
+
+        [ForeignKey("CiudadOrigenId")]
+        public Ciudad CiudadOrigen { get; set; }
+
+        [ForeignKey("CiudadDestinoId")]
+        public Ciudad CiudadDestino { get; set; }
     }
 }

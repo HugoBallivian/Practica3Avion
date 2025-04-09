@@ -5221,11 +5221,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Hugo\\Videos\\Practica3Avion\\AvionesDistribuidos\\AvionesDistribuidos.csproj",
+      "projectUniqueName": "C:\\Users\\Hugo\\Documents\\Practica3Avion\\AvionesDistribuidos\\AvionesDistribuidos.csproj",
       "projectName": "AvionesDistribuidos",
-      "projectPath": "C:\\Users\\Hugo\\Videos\\Practica3Avion\\AvionesDistribuidos\\AvionesDistribuidos.csproj",
+      "projectPath": "C:\\Users\\Hugo\\Documents\\Practica3Avion\\AvionesDistribuidos\\AvionesDistribuidos.csproj",
       "packagesPath": "C:\\Users\\Hugo\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Hugo\\Videos\\Practica3Avion\\AvionesDistribuidos\\obj\\",
+      "outputPath": "C:\\Users\\Hugo\\Documents\\Practica3Avion\\AvionesDistribuidos\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

@@ -46,5 +46,8 @@ namespace AvionesDistribuidos.Models
 
         [ForeignKey("RutaId")]
         public RutaComercial Ruta { get; set; }
+
+        public virtual ICollection<Asiento> Asientos { get; set; }
+        public virtual ICollection<EstadoAsientosVuelo> EstadosAsientos { get; set; }
     }
 }

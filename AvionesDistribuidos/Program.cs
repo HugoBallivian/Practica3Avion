@@ -2,6 +2,7 @@ using AvionesDistribuidos.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddScoped<SqlServerService>();
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -16,8 +17,8 @@ builder.Services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =
         continent = "Default";  // Asignar un valor por defecto si no se pasa el parámetro
     }
     var connectionString = (continent == "Europe" || continent == "Africa")
-        ? builder.Configuration.GetConnectionString("EuropeAfricaConnection")
-        : builder.Configuration.GetConnectionString("DefaultConnection");
+        ? builder.Configuration.GetConnectionString("SQLServer_EuropaAfrica")
+        : builder.Configuration.GetConnectionString("SQLServer_Americas");
     options.UseSqlServer(connectionString);
 });
 
@@ -31,8 +32,8 @@ builder.Services.AddDbContext<ApplicationDbContextEurope>((serviceProvider, opti
         continent = "Default";  // Asignar un valor por defecto si no se pasa el parámetro
     }
     var connectionString = (continent == "Europe" || continent == "Africa")
-        ? builder.Configuration.GetConnectionString("EuropeAfricaConnection")
-        : builder.Configuration.GetConnectionString("DefaultConnection");
+        ? builder.Configuration.GetConnectionString("SQLServer_EuropaAfrica")
+        : builder.Configuration.GetConnectionString("SQLServer_Americas");
     options.UseSqlServer(connectionString);
 });
 
@@ -61,7 +62,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
-    
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

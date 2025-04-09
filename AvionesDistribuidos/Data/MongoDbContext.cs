@@ -13,6 +13,6 @@ namespace AvionesDistribuidos.Data
         }
 
         // Ejemplo de colección
-        
+
     }
 }
