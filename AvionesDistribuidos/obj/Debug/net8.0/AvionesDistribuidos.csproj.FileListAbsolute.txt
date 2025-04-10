@@ -792,3 +792,9 @@ C:\Users\Dell\Downloads\Practica3Avion-main\Practica3Avion-main\AvionesDistribui
 C:\Users\Dell\Downloads\Practica3Avion-main\Practica3Avion-main\AvionesDistribuidos\obj\Debug\net8.0\AvionesDistribuidos.pdb
 C:\Users\Dell\Downloads\Practica3Avion-main\Practica3Avion-main\AvionesDistribuidos\obj\Debug\net8.0\AvionesDistribuidos.genruntimeconfig.cache
 C:\Users\Dell\Downloads\Practica3Avion-main\Practica3Avion-main\AvionesDistribuidos\obj\Debug\net8.0\ref\AvionesDistribuidos.dll
+C:\Univalle\Distribuidos\Practica3Avion\AvionesDistribuidos\bin\Debug\net8.0\DnsClient.dll
+C:\Univalle\Distribuidos\Practica3Avion\AvionesDistribuidos\bin\Debug\net8.0\MongoDB.Bson.dll
+C:\Univalle\Distribuidos\Practica3Avion\AvionesDistribuidos\bin\Debug\net8.0\MongoDB.Driver.dll
+C:\Univalle\Distribuidos\Practica3Avion\AvionesDistribuidos\bin\Debug\net8.0\SharpCompress.dll
+C:\Univalle\Distribuidos\Practica3Avion\AvionesDistribuidos\bin\Debug\net8.0\Snappier.dll
+C:\Univalle\Distribuidos\Practica3Avion\AvionesDistribuidos\bin\Debug\net8.0\ZstdSharp.dll

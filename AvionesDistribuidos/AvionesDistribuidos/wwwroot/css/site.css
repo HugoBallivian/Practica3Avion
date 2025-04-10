@@ -1,0 +1,232 @@
+
+.container {
+    margin: 20px;
+}
+
+.seat-container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap; 
+}
+
+.seat-section {
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.seat-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 5px;
+}
+
+.row-label {
+    width: 20px;
+    font-weight: bold;
+}
+
+.seat {
+    width: 30px;
+    height: 30px;
+    background-color: #ADD8E6; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 10px;
+    margin: 2px;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+    .seat:hover {
+        transform: scale(1.1);
+    }
+
+    .seat.empty {
+        background: transparent;
+        cursor: default;
+    }
+
+/* Estados */
+.Reservado {
+    background-color: #FFD700; 
+}
+
+.Vendido {
+    background-color: #90EE90; 
+}
+
+.Devolucion {
+    background-color: #F08080; 
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    width: 300px;
+    border-radius: 8px;
+    position: relative;
+    text-align: center;
+}
+
+.close {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.modal-btn {
+    margin: 5px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+}
+
+.Reservado-btn {
+    background-color: #FFD700;
+}
+
+.Vendido-btn {
+    background-color: #90EE90;
+}
+
+.Devolucion-btn {
+    background-color: #F08080;
+}
+
+.Disponible-btn {
+    background-color: #ADD8E6;
+}
+
+.modal-save {
+    margin-top: 10px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    background: #007bff;
+    color: #fff;
+    cursor: pointer;
+}
+
+/* Fondo del modal */
+#seatModal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+}
+
+    /* Contenido del modal centrado */
+    #seatModal .modal-content {
+        background-color: #fff;
+        margin: 10% auto; /* Centrado vertical */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 600px; /* Ancho aumentado */
+        border-radius: 4px;
+        text-align: left;
+    }
+
+/* Estilos de los botones */
+.modal-btn {
+    margin-right: 10px;
+    padding: 10px 15px;
+    cursor: pointer;
+    border: none;
+    border-radius: 3px;
+    color: #fff;
+}
+
+/* Colores según estado */
+.Reservado-btn {
+    background-color: #ffc107;
+}
+/* Amarillo */
+.Vendido-btn {
+    background-color: #28a745;
+}
+/* Verde */
+.Disponible-btn {
+    background-color: #007bff;
+}
+/* Azul */
+.Devolucion-btn {
+    background-color: #dc3545;
+}
+/* Rojo */
+
+#ticketModal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    justify-content: center;
+    align-items: center;
+    font-family: sans-serif;
+}
+
+#ticketModalContent {
+    background: #fff;
+    width: 400px;
+    max-width: 90%;
+    padding: 20px;
+    border-radius: 8px;
+    position: relative;
+    font-size: 1rem;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+    #ticketModalContent h2 {
+        font-size: 1.6rem;
+        margin-bottom: 5px;
+    }
+
+    #ticketModalContent p,
+    #ticketModalContent span {
+        font-size: 1.05rem;
+    }
+
+    #ticketModalContent .close {
+        position: absolute;
+        right: 15px;
+        top: 10px;
+        font-size: 24px;
+        cursor: pointer;
+    }
+
+    #ticketModalContent hr {
+        border: none;
+        border-top: 1px solid #ccc;
+        margin: 10px 0;
+    }

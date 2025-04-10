@@ -18,7 +18,7 @@ namespace AvionesDistribuidos.Data
         public DbSet<RutaComercial> RutasComerciales { get; set; }
         public DbSet<Avion> Aviones { get; set; }
         public DbSet<Asiento> Asientos { get; set; }
-        public DbSet<EstadoAsientosVuelo> EstadoAsientosVuelo { get; set; }
+        public DbSet<EstadoAsientosVuelo> EstadosAsientosVuelo { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -42,7 +42,7 @@ namespace AvionesDistribuidos.Data
                 .HasOne(r => r.CiudadOrigen)
                 .WithMany()
                 .HasForeignKey(r => r.CiudadOrigenId)
-                .OnDelete(DeleteBehavior.NoAction); 
+                .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<RutaComercial>()
                 .HasOne(r => r.CiudadDestino)
@@ -65,24 +65,24 @@ namespace AvionesDistribuidos.Data
                 .WithMany(v => v.Asientos)
                 .HasForeignKey(a => a.VueloId);
 
-            modelBuilder.Entity<EstadoAsientosVuelo>()
-                .HasOne(e => e.Vuelo)
-                .WithMany()
-                .HasForeignKey(e => e.VueloId);
+            //modelBuilder.Entity<EstadoAsientosVuelo>()
+            //    .HasOne(e => e.Vuelo)
+            //    .WithMany()
+            //    .HasForeignKey(e => e.VueloId);
 
-            modelBuilder.Entity<EstadoAsientosVuelo>()
-                .HasOne(e => e.Asiento)
-                .WithMany()
-                .HasForeignKey(e => e.AsientoId);
+            //modelBuilder.Entity<EstadoAsientosVuelo>()
+            //    .HasOne(e => e.Asiento)
+            //    .WithMany()
+            //    .HasForeignKey(e => e.AsientoId);
 
-            modelBuilder.Entity<EstadoAsientosVuelo>()
-                .HasOne(e => e.Pasajero)
-                .WithMany()
-                .HasForeignKey(e => e.PasajeroId);
+            //modelBuilder.Entity<EstadoAsientosVuelo>()
+            //    .HasOne(e => e.Pasajero)
+            //    .WithMany()
+            //    .HasForeignKey(e => e.PasajeroId);
 
-            modelBuilder.Entity<EstadoAsientosVuelo>()
-                .HasIndex(e => new { e.VueloId, e.AsientoId })
-                .IsUnique();
+            //modelBuilder.Entity<EstadoAsientosVuelo>()
+            //    .HasIndex(e => new { e.VueloId, e.AsientoId })
+            //    .IsUnique();
         }
     }
 }
