@@ -4981,11 +4981,19 @@
   "project": {
     "version": "1.0.0",
     "restore": {
+<<<<<<< Updated upstream
       "projectUniqueName": "C:\\Users\\Dell\\Downloads\\Dsitribuidos\\Practica3Avion\\AvionesDistribuidos\\AvionesDistribuidos.csproj",
       "projectName": "AvionesDistribuidos",
       "projectPath": "C:\\Users\\Dell\\Downloads\\Dsitribuidos\\Practica3Avion\\AvionesDistribuidos\\AvionesDistribuidos.csproj",
       "packagesPath": "C:\\Users\\Dell\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\Dell\\Downloads\\Dsitribuidos\\Practica3Avion\\AvionesDistribuidos\\obj\\",
+=======
+      "projectUniqueName": "C:\\Users\\Dell\\Documents\\Practica3Avion\\Practica3Avion\\AvionesDistribuidos\\AvionesDistribuidos.csproj",
+      "projectName": "AvionesDistribuidos",
+      "projectPath": "C:\\Users\\Dell\\Documents\\Practica3Avion\\Practica3Avion\\AvionesDistribuidos\\AvionesDistribuidos.csproj",
+      "packagesPath": "C:\\Users\\Dell\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Dell\\Documents\\Practica3Avion\\Practica3Avion\\AvionesDistribuidos\\obj\\",
+>>>>>>> Stashed changes
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Dell\\AppData\\Roaming\\NuGet\\NuGet.Config",
