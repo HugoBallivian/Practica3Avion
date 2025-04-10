@@ -23,6 +23,8 @@
         public string SeatId { get; set; }
         public int? DatabaseId { get; set; } // id_asiento real
         public decimal? Price { get; set; }
+        public int? Pasaporte { get; set; }
+        public string PasajeroNombre { get; set; }
         public string State { get; set; } = "Disponible"; // Estados: "Disponible", "Reservado", "Vendido", "Devolucion"
     }
 }

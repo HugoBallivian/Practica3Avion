@@ -16,7 +16,8 @@
                         }
                         else
                         {
-                            <div class="seat @seat.State" data-seat="@seat.SeatId" data-database-id="@seat.DatabaseId" data-price="@seat.Price" ondblclick="openSeatModal(this)">
+                            <div class="seat @seat.State" data-seat="@seat.SeatId" data-database-id="@seat.DatabaseId" data-price="@seat.Price" data-passport="@seat.Pasaporte"
+                                 data-passenger="@seat.PasajeroNombre" ondblclick="openSeatModal(this)">
                                 @seat.SeatId
                             </div>
                         }

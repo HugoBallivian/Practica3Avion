@@ -23,7 +23,6 @@ namespace AvionesDistribuidos.Models
         [ForeignKey("AsientoId")]
         public Asiento? Asiento { get; set; }
 
-        [Required]
         [Column("id_pasajero")]
         public int? PasajeroId { get; set; }
 
@@ -38,12 +37,10 @@ namespace AvionesDistribuidos.Models
         [Column("fecha_hora_actualizacion")]
         public long? FechaHoraActualizacion { get; set; }
 
-        [Required]
         [MaxLength(100)]
         [Column("servidor_origen")]
         public string? ServidorOrigen { get; set; }
 
-        [Required]
         [Column("vector_clock")]
         public string? VectorClock { get; set; }
     }

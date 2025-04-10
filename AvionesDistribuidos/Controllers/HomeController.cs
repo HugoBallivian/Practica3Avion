@@ -337,10 +337,29 @@ namespace AvionesDistribuidos.Controllers
 
                 // Obtener los estados de los asientos de la base de datos para ese vuelo
                 var estadosDB = _context.EstadosAsientosVuelo
-                    .AsNoTracking()
+                    //.AsNoTracking()
                     .Where(e => e.VueloId == idVuelo && e.Estado != null)
                     .Select(e => new { e.AsientoId, e.Estado })
                     .ToDictionary(e => e.AsientoId, e => e.Estado ?? "Disponible");
+
+                var pasaporteAsientosDB = _context.EstadosAsientosVuelo
+                    .AsNoTracking()
+                    .Where(e => e.VueloId == idVuelo && e.PasajeroId != null)
+                    .ToDictionary(
+                        e => e.AsientoId,
+                        e => e.PasajeroId
+                    );
+
+                var pasajeroAsientosDB = _context.EstadosAsientosVuelo
+                    .AsNoTracking()
+                    .Where(e => e.VueloId == idVuelo && e.PasajeroId != null)
+                    .Include(e => e.Pasajero)
+                    .ToDictionary(
+                        e => e.AsientoId,
+                        e => e.Pasajero.nombre_completo
+                    );
+
+
 
                 // Mismos cálculos de filas y columnas que en Index()
                 char fcRowStart = 'A';
@@ -352,8 +371,8 @@ namespace AvionesDistribuidos.Controllers
                 int econColStart = config.LastCol1 + 1;
                 int econColEnd = config.LastCol2;
 
-                var firstClassRows = GenerateSeatRows(fcRowStart, fcRowEnd, fcColStart, fcColEnd, asientosDB, preciosAsientosDB, estadosDB);
-                var economyRows = GenerateSeatRows(econRowStart, econRowEnd, econColStart, econColEnd, asientosDB, preciosAsientosDB, estadosDB);
+                var firstClassRows = GenerateSeatRows(fcRowStart, fcRowEnd, fcColStart, fcColEnd, asientosDB, preciosAsientosDB, estadosDB, pasaporteAsientosDB, pasajeroAsientosDB);
+                var economyRows = GenerateSeatRows(econRowStart, econRowEnd, econColStart, econColEnd, asientosDB, preciosAsientosDB, estadosDB, pasaporteAsientosDB, pasajeroAsientosDB);
 
                 seatConfig = new List<SeatConfiguration>
                 {
@@ -423,7 +442,9 @@ namespace AvionesDistribuidos.Controllers
             return rows;
         }
 
-        private List<SeatRow> GenerateSeatRows(char rowStart, char rowEnd, int colStart, int colEnd, Dictionary<string, int> asientosDB, Dictionary<string, decimal> preciosAsientosDB, Dictionary<int?, string> estadosDB)
+        private List<SeatRow> GenerateSeatRows(char rowStart, char rowEnd, int colStart, int colEnd, Dictionary<string, int> asientosDB, Dictionary<string, decimal> preciosAsientosDB, Dictionary<int?, string> estadosDB,
+    Dictionary<int?, int?> pasaporteAsientosDB,
+    Dictionary<int?, string> pasajeroAsientosDB)
         {
             var rows = new List<SeatRow>();
             for (char row = rowStart; row <= rowEnd; row++)
@@ -455,8 +476,13 @@ namespace AvionesDistribuidos.Controllers
                     {
                         seat.State = "Disponible"; // estado inicial libre
                     }
+                    if (pasaporteAsientosDB.TryGetValue(idAsiento, out var pasaporte))
+                        seat.Pasaporte = pasaporte;
 
-                        seats.Add(seat);
+                    if (pasajeroAsientosDB.TryGetValue(idAsiento, out var nombre))
+                        seat.PasajeroNombre = nombre;
+
+                    seats.Add(seat);
                 }
 
                 rows.Add(new SeatRow { RowLabel = row.ToString(), Seats = seats });
