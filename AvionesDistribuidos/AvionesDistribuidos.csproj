@@ -8,8 +8,22 @@
 
   <ItemGroup>
     <PackageReference Include="CountryData" Version="6.11.0" />
+    <PackageReference Include="EntityFramework" Version="6.5.1" />
     <PackageReference Include="MaxMind.GeoIP2" Version="5.2.0" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="MongoDB.Driver" Version="3.3.0" />
     <PackageReference Include="Nager.Country" Version="4.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
 </Project>

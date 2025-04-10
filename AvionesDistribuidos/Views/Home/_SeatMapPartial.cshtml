@@ -1,0 +1,29 @@
+﻿@model IEnumerable<AvionesDistribuidos.Models.SeatConfiguration>
+<h2>Mapa de Asientos</h2>
+<div class="seat-container">
+    @foreach (var section in Model)
+    {
+        <div class="seat-section @(section.SectionName.Replace(" ", "").ToLower())">
+            @foreach (var row in section.Rows)
+            {
+                <div class="seat-row">
+                    <div class="row-label">@row.RowLabel</div>
+                    @foreach (var seat in row.Seats)
+                    {
+                        if (seat.State == null)
+                        {
+                            <div class="seat empty"></div>
+                        }
+                        else
+                        {
+                            <div class="seat @seat.State" data-seat="@seat.SeatId" data-database-id="@seat.DatabaseId" data-price="@seat.Price" data-passport="@seat.Pasaporte"
+                                 data-passenger="@seat.PasajeroNombre" ondblclick="openSeatModal(this)">
+                                @seat.SeatId
+                            </div>
+                        }
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>

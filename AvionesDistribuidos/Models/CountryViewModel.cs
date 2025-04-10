@@ -21,6 +21,10 @@
     public class Seat
     {
         public string SeatId { get; set; }
-        public string State { get; set; } = "libre"; // Estados: "libre", "reserva", "venta", "devolucion", "empty", etc.
+        public int? DatabaseId { get; set; } // id_asiento real
+        public decimal? Price { get; set; }
+        public int? Pasaporte { get; set; }
+        public string PasajeroNombre { get; set; }
+        public string State { get; set; } = "Disponible"; // Estados: "Disponible", "Reservado", "Vendido", "Devolucion"
     }
 }
