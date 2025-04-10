@@ -342,10 +342,10 @@
                             // Poblar el select con los vuelos recibidos
                             $.each(response.flights, function (i, flight) {
                                 var flightText = flight.code + " " +
-                                                 flight.departureDesc + " - " +
-                                                 flight.destinationDesc + " " +
-                                                 flight.time + " " +
-                                                 flight.date;
+                                    flight.departureDesc + " - " +
+                                    flight.destinationDesc + " " +
+                                    flight.time + " " +
+                                    flight.date;
                                 flightSelect.append('<option value="' + flightText + '">' + flightText + '</option>');
                             });
                             flightSelect.trigger('change');
@@ -480,16 +480,16 @@
             if (currentSeatState === "Disponible") {
                 modalBody.innerHTML +=
                     '<div id="passportSection">' +
-                        '<label>Pasaporte:</label>' +
-                        '<div class="input-group">' +
-                            '<input id="passportInput" class="form-control" type="text" />' +
-                            '<button class="btn btn-secondary" type="button" onclick="buscarPasajero()">Buscar</button>' +
-                        '</div>' +
+                    '<label>Pasaporte:</label>' +
+                    '<div class="input-group">' +
+                    '<input id="passportInput" class="form-control" type="text" />' +
+                    '<button class="btn btn-secondary" type="button" onclick="buscarPasajero()">Buscar</button>' +
+                    '</div>' +
                     '</div>';
                 modalBody.innerHTML +=
                     '<div id="passengerSection">' +
-                        '<label>Pasajero:</label>' +
-                        '<input id="passengerInput" class="form-control" type="text" disabled />' +
+                    '<label>Pasajero:</label>' +
+                    '<input id="passengerInput" class="form-control" type="text" disabled />' +
                     '</div>';
             }
             // Si está en Reservado o devolución, mostramos datos existentes
@@ -551,7 +551,7 @@
         }
 
         // Cambia el estado del asiento (Reservado, Vendido, Devolucion, Disponible)
-                function changeSeatState(newState) {
+        function changeSeatState(newState) {
             // Validación de transiciones permitidas
             if (currentSeatState === "Devolucion" && newState !== "Disponible") {
                 alert("Sólo se puede cambiar a Disponible desde Devolución.");
@@ -571,38 +571,63 @@
                     type: 'POST',
                     data: { passport: passport, passenger: passenger },
                     success: function (response) {
-                         if (response.success) {
-                             // Asignamos atributos data- al elemento del asiento
-                             currentSeat.setAttribute("data-passport", passport);
-                             currentSeat.setAttribute("data-passenger", response.passenger);
-                             // Cambiamos clases CSS para reflejar el nuevo estado
-                             currentSeat.className = 'seat ' + newState;
+                        if (response.success) {
+                            // Preparamos datos para guardar estado
+                            var vueloId = currentFlightId;
+                            var seatId = currentSeat.getAttribute("data-seat");
+                            var pasajeroId = parseInt(passport, 10);
+                            var servidor = servidorOrigen;
+                            var vectorClockJson = JSON.stringify({}); // ajusta si tienes lógica
 
-                             if (newState === "Vendido") {
-                                 closeSeatModal();
-                                 openTicketModal();
-                             } else {
-                                 closeSeatModal();
-                             }
-                         } else {
-                             alert(response.message);
-                         }
+                            // Guardamos en BD
+                            $.ajax({
+                                url: '@Url.Action("SaveSeatState", "Home")',
+                                type: 'POST',
+                                data: {
+                                    vueloId: vueloId,
+                                    seatId: seatId,
+                                    estado: newState,
+                                    pasajeroId: pasajeroId,
+                                    servidorOrigen: servidor,
+                                    vectorClockJson: vectorClockJson
+                                },
+                                success: function (saveResp) {
+                                    if (saveResp.success) {
+                                        currentSeat.setAttribute("data-passport", pasajeroId);
+                                        currentSeat.setAttribute("data-passenger", response.passenger);
+                                        currentSeat.className = 'seat ' + newState;
+
+                                        if (newState === "Vendido") {
+                                            openTicketModal();   // Primero abrimos el ticket usando currentSeat
+                                            closeSeatModal();    // Luego cerramos el modal de asiento (y limpiamos currentSeat)
+                                        } else {
+                                            closeSeatModal();
+                                        }
+                                    }
+                                },
+                                error: function () {
+                                    alert("Error al guardar el estado en el servidor.");
+                                }
+                            });
+                        } else {
+                            alert(response.message);
+                        }
                     },
                     error: function () {
                         alert("Error al validar el pasajero.");
                     }
                 });
             }
-            // Para cambios simples (Reservado→devolución, devolución→Disponible, etc.)
-             else {
-                 currentSeat.className = 'seat ' + newState;
-                 if (newState === "Vendido") {
-                     closeSeatModal();
-                     openTicketModal();
-                 } else {
-                     closeSeatModal();
-                 }
-             }
+            // Para cambios simples (Reservado→Devolucion, Devolucion→Disponible, etc.)
+            else {
+                currentSeat.className = 'seat ' + newState;
+                if (newState === "Vendido") {
+                    openTicketModal();  // primero
+                    closeSeatModal();   // después
+                } else {
+                    closeSeatModal();
+                }
+            }
         }
 
         // Muestra el modal del ticket con datos del vuelo y asiento
@@ -666,7 +691,6 @@
         }
     </script>
 
-
     <script>
         $('#countrySelect').change(function () {
             var selectedCountry = $(this).val();
@@ -676,11 +700,9 @@
         });
     </script>
 
-
     <script>
         document.getElementById('countrySelect').addEventListener('change', function () {
             var selectedContinent = this.value;
-
             if (selectedContinent) {
                 window.location.href = '/Home/Index?continent=' + selectedContinent;
             }
@@ -691,7 +713,4 @@
         var currentFlightId = @ViewBag.FlightId;
         var servidorOrigen = "@ViewBag.SelectedCountry";
     </script>
-
-
-
 }
