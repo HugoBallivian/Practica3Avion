@@ -126,6 +126,7 @@ namespace AvionesDistribuidos.Controllers
                 return Json(new { success = false, message = "Número de pasaporte inválido." });
             }
 
+<<<<<<< Updated upstream
             var pasajeroExistente = _context.Pasajeros.FirstOrDefault(p => p.numero_pasaporte == numeroPasaporte);
             if (pasajeroExistente != null)
             {
@@ -134,16 +135,158 @@ namespace AvionesDistribuidos.Controllers
             else
             {
                 var nuevoPasajero = new Pasajero
+=======
+            // Buscar en la BD
+            var pasajeroExistente = _context.Pasajeros.FirstOrDefault(p => p.numero_pasaporte == numeroPasaporte);
+            if (pasajeroExistente != null)
+                return Json(new { success = true, passenger = pasajeroExistente.nombre_completo });
+            else
+                return Json(new { success = false, message = "Pasaporte no encontrado." });
+        }
+
+        /// <summary>
+        /// Valida o crea un nuevo pasajero según pasaporte y nombre.
+        /// </summary>
+        //[HttpPost]
+        //public IActionResult ValidarPasajero([FromForm] string passport, [FromForm] string passenger)
+        //{
+        //    // Validar campos
+        //    if (string.IsNullOrWhiteSpace(passport) || string.IsNullOrWhiteSpace(passenger))
+        //        return Json(new { success = false, message = "Los campos de Pasaporte y Pasajero son obligatorios." });
+
+        //    if (!int.TryParse(passport, out int numeroPasaporte))
+        //        return Json(new { success = false, message = "Número de pasaporte inválido." });
+
+        //    // Si existe, devolvemos su nombre
+        //    var pasajeroExistente = _context.Pasajeros.FirstOrDefault(p => p.numero_pasaporte == numeroPasaporte);
+        //    if (pasajeroExistente != null)
+        //    {
+        //        return Json(new { success = true, passenger = pasajeroExistente.nombre_completo });
+        //    }
+        //    else
+        //    {
+        //        // Si no existe, creamos uno nuevo en la BD
+        //        var nuevoPasajero = new Pasajero
+        //        {
+        //            numero_pasaporte = numeroPasaporte,
+        //            nombre_completo = passenger
+        //        };
+        //        _context.Pasajeros.Add(nuevoPasajero);
+        //        _context.SaveChanges();
+
+        //        return Json(new { success = true, passenger = nuevoPasajero.nombre_completo });
+        //    }
+        //}
+        [HttpPost]
+        public IActionResult ValidarPasajero(
+            [FromForm] string passport,
+            [FromForm] string passenger,
+            [FromForm] int asientoId,
+            [FromForm] string estado,
+            [FromForm] string servidorOrigen)
+        {
+            if (string.IsNullOrWhiteSpace(passport) || string.IsNullOrWhiteSpace(passenger))
+                return Json(new { success = false, message = "Los campos de Pasaporte y Pasajero son obligatorios." });
+
+            if (!int.TryParse(passport, out int numeroPasaporte))
+                return Json(new { success = false, message = "Número de pasaporte inválido." });
+
+            // Buscar o crear pasajero
+            var pasajero = _context.Pasajeros.FirstOrDefault(p => p.numero_pasaporte == numeroPasaporte);
+            if (pasajero == null)
+            {
+                pasajero = new Pasajero
+>>>>>>> Stashed changes
                 {
                     numero_pasaporte = numeroPasaporte,
                     nombre_completo = passenger
                 };
-                _context.Pasajeros.Add(nuevoPasajero);
+                _context.Pasajeros.Add(pasajero);
                 _context.SaveChanges();
+<<<<<<< Updated upstream
                 return Json(new { success = true, passenger = nuevoPasajero.nombre_completo });
+=======
+>>>>>>> Stashed changes
             }
+
+            // Convertir el estado a formato normalizado
+            string estadoFinal = estado.Trim().ToLowerInvariant() switch
+            {
+                "reservado" => "Reservado",
+                "vendido" => "Vendido",
+                "devolucion" => "Devolucion",
+                _ => "Disponible"
+            };
+
+            // Epoch timestamp
+            long timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+            // ACTUALIZAR registro existente (no se hace inserción)
+            var estadoAsiento = _context.EstadosAsientosVuelo
+                .FirstOrDefault(e => e.AsientoId == asientoId);
+
+            if (estadoAsiento == null)
+            {
+                return Json(new { success = false, message = "No se encontró el estado del asiento en la base de datos." });
+            }
+
+            estadoAsiento.Estado = estadoFinal;
+            estadoAsiento.PasajeroId = pasajero.numero_pasaporte;
+            estadoAsiento.FechaHoraActualizacion = timestamp;
+            estadoAsiento.ServidorOrigen = servidorOrigen;
+            estadoAsiento.VectorClock = "{}"; // lógica de sincronización futura
+
+            _context.SaveChanges();
+
+            return Json(new { success = true, passenger = pasajero.nombre_completo });
         }
 
+<<<<<<< Updated upstream
+=======
+        [HttpPost]
+        public IActionResult ActualizarEstado(
+            [FromForm] int asientoId,
+            [FromForm] string estado,
+            [FromForm] string servidorOrigen)
+        {
+
+            // Convertir el estado a formato normalizado
+            string estadoFinal = estado.Trim().ToLowerInvariant() switch
+            {
+                "reservado" => "Reservado",
+                "vendido" => "Vendido",
+                "devolucion" => "Devolucion",
+                _ => "Disponible"
+            };
+
+            // Epoch timestamp
+            long timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+            // ACTUALIZAR registro existente (no se hace inserción)
+            var estadoAsiento = _context.EstadosAsientosVuelo
+                .FirstOrDefault(e => e.AsientoId == asientoId);
+
+            if (estadoAsiento == null)
+            {
+                return Json(new { success = false, message = "No se encontró el estado del asiento en la base de datos." });
+            }
+
+            estadoAsiento.Estado = estadoFinal;
+            estadoAsiento.FechaHoraActualizacion = timestamp;
+            estadoAsiento.ServidorOrigen = servidorOrigen;
+            estadoAsiento.VectorClock = "{}"; // lógica de sincronización futura
+
+            _context.SaveChanges();
+
+            return Json(new { success = true });
+        }
+
+
+
+        /// <summary>
+        /// Devuelve la lista de vuelos según filtros de origen, destino y fecha.
+        /// </summary>
+>>>>>>> Stashed changes
         [HttpPost]
         public IActionResult GetFlights([FromForm] string departure, [FromForm] string destination, [FromForm] string date)
         {

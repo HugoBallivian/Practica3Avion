@@ -433,7 +433,13 @@
                 $.ajax({
                     url: '@Url.Action("ValidarPasajero", "Home")',
                     type: 'POST',
-                    data: { passport: passport, passenger: passenger },
+                        data: {
+                        passport: passport,
+                        passenger: passenger,
+                        asientoId: currentSeat.getAttribute("data-database-id"),
+                        estado: newState,
+                        servidorOrigen: "Servidor A"
+                    },
                     success: function (response) {
                         if (response.success) {
                             document.getElementById("passengerInput").value = response.passenger;
@@ -457,6 +463,7 @@
                     }
                 });
             }
+<<<<<<< Updated upstream
             else {
                 currentSeat.classList.remove("libre", "reserva", "venta", "devolucion");
                 currentSeat.classList.add(newState);
@@ -467,6 +474,108 @@
                     closeSeatModal();
                 }
             }
+=======
+            // Para cambios simples (Reservado→devolución, devolución→Disponible, etc.)
+             else {
+                 currentSeat.className = 'seat ' + newState;
+                 if (newState === "Vendido") {
+                     $.ajax({
+                    url: '@Url.Action("ActualizarEstado", "Home")',
+                    type: 'POST',
+                        data: {
+                        asientoId: currentSeat.getAttribute("data-database-id"),
+                        estado: newState,
+                        servidorOrigen: "Servidor A"
+                    },
+                    success: function (response) {
+                         if (response.success) {
+                             // Cambiamos clases CSS para reflejar el nuevo estado
+                             currentSeat.className = 'seat ' + newState;
+
+                             if (newState === "Vendido") {
+                                 closeSeatModal();
+                                 openTicketModal();
+                             } else {
+                                 closeSeatModal();
+                             }
+                         } else {
+                             alert(response.message);
+                         }
+                    },
+                    error: function () {
+                        alert("Error al validar el pasajero.");
+                    }
+                });
+                     closeSeatModal();
+                     openTicketModal();
+                 }
+                 if (newState === "Devolucion") {
+                     $.ajax({
+                    url: '@Url.Action("ActualizarEstado", "Home")',
+                    type: 'POST',
+                        data: {
+                        asientoId: currentSeat.getAttribute("data-database-id"),
+                        estado: newState,
+                        servidorOrigen: "Servidor A"
+                    },
+                    success: function (response) {
+                         if (response.success) {
+                             // Cambiamos clases CSS para reflejar el nuevo estado
+                             currentSeat.className = 'seat ' + newState;
+
+                             if (newState === "Vendido") {
+                                 closeSeatModal();
+                                 openTicketModal();
+                             } else {
+                                 closeSeatModal();
+                             }
+                         } else {
+                             alert(response.message);
+                         }
+                    },
+                    error: function () {
+                        alert("Error al validar el pasajero.");
+                    }
+                });
+                     closeSeatModal();
+                     openTicketModal();
+                 }
+                 if (newState === "Disponible") {
+                     $.ajax({
+                    url: '@Url.Action("ActualizarEstado", "Home")',
+                    type: 'POST',
+                        data: {
+                        asientoId: currentSeat.getAttribute("data-database-id"),
+                        estado: newState,
+                        servidorOrigen: "Servidor A"
+                    },
+                    success: function (response) {
+                         if (response.success) {
+                             // Cambiamos clases CSS para reflejar el nuevo estado
+                             currentSeat.className = 'seat ' + newState;
+
+                             if (newState === "Vendido") {
+                                 closeSeatModal();
+                                 openTicketModal();
+                             } else {
+                                 closeSeatModal();
+                             }
+                         } else {
+                             alert(response.message);
+                         }
+                    },
+                    error: function () {
+                        alert("Error al validar el pasajero.");
+                    }
+                });
+                     closeSeatModal();
+                     openTicketModal();
+                 }
+                 else {
+                     closeSeatModal();
+                 }
+             }
+>>>>>>> Stashed changes
         }
 
         function openTicketModal() {
@@ -523,4 +632,28 @@
             }
         }
     </script>
+<<<<<<< Updated upstream
+=======
+
+
+    <script>
+        $('#countrySelect').change(function () {
+            var selectedCountry = $(this).val();
+            if (selectedCountry) {
+                window.location.href = '@Url.Action("Index", "Home")?country=' + selectedCountry;
+            }
+        });
+    </script>
+
+
+    <script>
+        document.getElementById('countrySelect').addEventListener('change', function () {
+            var selectedContinent = this.value;
+
+            if (selectedContinent) {
+                window.location.href = '/Home/Index?continent=' + selectedContinent;
+            }
+        });
+    </script>
+>>>>>>> Stashed changes
 }
