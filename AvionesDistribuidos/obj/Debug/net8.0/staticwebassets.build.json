@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "kvuvUvJmv93tKGd4zd+saiKsW/XQZm4YDYmRtOUE6vI=",
+  "Hash": "3JRVINjR0xqnXI1KZqpC0fR4KvqfDkHe5ZMmADw/r/E=",
   "Source": "AvionesDistribuidos",
   "BasePath": "_content/AvionesDistribuidos",
   "Mode": "Default",
@@ -115,8 +115,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "480jkml98q",
-      "Integrity": "HDyLN4Hcmi3T/8VXhL5Aq5E+Ysyg/o/rz7RSr61066Q=",
+      "Fingerprint": "1b1p024qyd",
+      "Integrity": "IyWUSlKHgnLHG1tFLiTsMAbJ4Rt2H3bs8uLB0Q2reHg=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\site.css"
@@ -1712,7 +1712,7 @@
       ]
     },
     {
-      "Route": "css/site.480jkml98q.css",
+      "Route": "css/site.1b1p024qyd.css",
       "AssetFile": "C:\\Univalle\\Repositories\\Practica3Avion\\AvionesDistribuidos\\wwwroot\\css\\site.css",
       "Selectors": [],
       "ResponseHeaders": [
@@ -1722,7 +1722,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "4076"
+          "Value": "4098"
         },
         {
           "Name": "Content-Type",
@@ -1730,11 +1730,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"HDyLN4Hcmi3T/8VXhL5Aq5E+Ysyg/o/rz7RSr61066Q=\""
+          "Value": "\"IyWUSlKHgnLHG1tFLiTsMAbJ4Rt2H3bs8uLB0Q2reHg=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Wed, 09 Apr 2025 21:57:39 GMT"
+          "Value": "Thu, 10 Apr 2025 02:53:41 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -1744,7 +1744,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "480jkml98q"
+          "Value": "1b1p024qyd"
         },
         {
           "Name": "label",
@@ -1752,7 +1752,7 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-HDyLN4Hcmi3T/8VXhL5Aq5E+Ysyg/o/rz7RSr61066Q="
+          "Value": "sha256-IyWUSlKHgnLHG1tFLiTsMAbJ4Rt2H3bs8uLB0Q2reHg="
         }
       ]
     },
@@ -1767,7 +1767,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "4076"
+          "Value": "4098"
         },
         {
           "Name": "Content-Type",
@@ -1775,11 +1775,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"HDyLN4Hcmi3T/8VXhL5Aq5E+Ysyg/o/rz7RSr61066Q=\""
+          "Value": "\"IyWUSlKHgnLHG1tFLiTsMAbJ4Rt2H3bs8uLB0Q2reHg=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Wed, 09 Apr 2025 21:57:39 GMT"
+          "Value": "Thu, 10 Apr 2025 02:53:41 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -1789,7 +1789,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-HDyLN4Hcmi3T/8VXhL5Aq5E+Ysyg/o/rz7RSr61066Q="
+          "Value": "sha256-IyWUSlKHgnLHG1tFLiTsMAbJ4Rt2H3bs8uLB0Q2reHg="
         }
       ]
     },

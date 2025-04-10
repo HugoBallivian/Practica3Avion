@@ -11,40 +11,40 @@ namespace AvionesDistribuidos.Models
 
         [Required]
         [Column("id_vuelo")]
-        public int VueloId { get; set; }
+        public int? VueloId { get; set; }
 
         [ForeignKey("VueloId")]
-        public Vuelo Vuelo { get; set; }
+        public Vuelo? Vuelo { get; set; }
 
         [Required]
         [Column("id_asiento")]
-        public int AsientoId { get; set; }
+        public int? AsientoId { get; set; }
 
         [ForeignKey("AsientoId")]
-        public Asiento Asiento { get; set; }
+        public Asiento? Asiento { get; set; }
 
         [Required]
         [Column("id_pasajero")]
-        public int PasajeroId { get; set; }
+        public int? PasajeroId { get; set; }
 
         [ForeignKey("PasajeroId")]
-        public Pasajero Pasajero { get; set; }
+        public Pasajero? Pasajero { get; set; }
 
         [Required]
         [Column("estado")]
-        public int Estado { get; set; }
+        public string? Estado { get; set; }
 
         [Required]
         [Column("fecha_hora_actualizacion")]
-        public long FechaHoraActualizacion { get; set; }
+        public long? FechaHoraActualizacion { get; set; }
 
         [Required]
         [MaxLength(100)]
         [Column("servidor_origen")]
-        public string ServidorOrigen { get; set; }
+        public string? ServidorOrigen { get; set; }
 
         [Required]
         [Column("vector_clock")]
-        public string VectorClock { get; set; }
+        public string? VectorClock { get; set; }
     }
 }

@@ -54,15 +54,15 @@
     }
 
 /* Estados */
-.reserva {
+.Reservado {
     background-color: #FFD700; 
 }
 
-.venta {
+.Vendido {
     background-color: #90EE90; 
 }
 
-.devolucion {
+.Devolucion {
     background-color: #F08080; 
 }
 
@@ -104,19 +104,19 @@
     cursor: pointer;
 }
 
-.reserva-btn {
+.Reservado-btn {
     background-color: #FFD700;
 }
 
-.venta-btn {
+.Vendido-btn {
     background-color: #90EE90;
 }
 
-.devolucion-btn {
+.Devolucion-btn {
     background-color: #F08080;
 }
 
-.libre-btn {
+.Disponible-btn {
     background-color: #ADD8E6;
 }
 
@@ -165,19 +165,19 @@
 }
 
 /* Colores según estado */
-.reserva-btn {
+.Reservado-btn {
     background-color: #ffc107;
 }
 /* Amarillo */
-.venta-btn {
+.Vendido-btn {
     background-color: #28a745;
 }
 /* Verde */
-.libre-btn {
+.Disponible-btn {
     background-color: #007bff;
 }
 /* Azul */
-.devolucion-btn {
+.Devolucion-btn {
     background-color: #dc3545;
 }
 /* Rojo */

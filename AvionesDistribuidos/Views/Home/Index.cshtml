@@ -131,7 +131,7 @@
                         <div style="width:15px; height:15px; background-color:blue; display:inline-block;"></div>
                     </td>
                     <td class="card-title" style="font-size:14px; padding-left:5px;">
-                        Libre
+                        Disponible
                     </td>
                 </tr>
                 <tr>
@@ -147,7 +147,7 @@
                         <div style="width:15px; height:15px; background-color:yellow; display:inline-block;"></div>
                     </td>
                     <td class="card-title" style="font-size:14px; padding-left:5px;">
-                        Reserva
+                        Reservado
                     </td>
                 </tr>
                 <tr>
@@ -458,7 +458,7 @@
             currentSeatState = getSeatState(seatElement);
 
             // Si ya está vendido, mostramos directamente el ticket
-            if (currentSeatState === "venta") {
+            if (currentSeatState === "Vendido") {
                 openTicketModal();
                 return;
             }
@@ -476,8 +476,8 @@
             modalBody.innerHTML += '<p><strong>Precio:</strong> ' + seatPrice + '</p>';
             modalBody.innerHTML += '<p><strong>Estado:</strong> ' + currentSeatState + '</p>';
 
-            // Si está libre, permitimos buscar pasajero
-            if (currentSeatState === "libre") {
+            // Si está Disponible, permitimos buscar pasajero
+            if (currentSeatState === "Disponible") {
                 modalBody.innerHTML +=
                     '<div id="passportSection">' +
                         '<label>Pasaporte:</label>' +
@@ -492,8 +492,8 @@
                         '<input id="passengerInput" class="form-control" type="text" disabled />' +
                     '</div>';
             }
-            // Si está en reserva o devolución, mostramos datos existentes
-            else if (currentSeatState === "reserva" || currentSeatState === "devolucion") {
+            // Si está en Reservado o devolución, mostramos datos existentes
+            else if (currentSeatState === "Reservado" || currentSeatState === "Devolucion") {
                 var passportVal = seatElement.getAttribute("data-passport") || "";
                 var passengerVal = seatElement.getAttribute("data-passenger") || "";
                 modalBody.innerHTML += '<p>Pasaporte: ' + passportVal + '</p>';
@@ -502,19 +502,19 @@
 
             // Botones según el estado actual
             modalBody.innerHTML += '<div id="stateButtons">';
-            if (currentSeatState === "libre") {
+            if (currentSeatState === "Disponible") {
                 modalBody.innerHTML +=
-                    '<button onclick="changeSeatState(\'reserva\')" class="btn btn-warning">Reserva</button>';
+                    '<button onclick="changeSeatState(\'Reservado\')" class="btn btn-warning">Reservar</button>';
                 modalBody.innerHTML +=
-                    '<button onclick="changeSeatState(\'venta\')" class="btn btn-success">Venta</button>';
-            } else if (currentSeatState === "reserva") {
+                    '<button onclick="changeSeatState(\'Vendido\')" class="btn btn-success">Comprar</button>';
+            } else if (currentSeatState === "Reservado") {
                 modalBody.innerHTML +=
-                    '<button onclick="changeSeatState(\'venta\')" class="btn btn-success">Venta</button>';
+                    '<button onclick="changeSeatState(\'Vendido\')" class="btn btn-success">Comprar</button>';
                 modalBody.innerHTML +=
-                    '<button onclick="changeSeatState(\'devolucion\')" class="btn btn-danger">Devolución</button>';
-            } else if (currentSeatState === "devolucion") {
+                    '<button onclick="changeSeatState(\'Devolucion\')" class="btn btn-danger">Devolución</button>';
+            } else if (currentSeatState === "Devolucion") {
                 modalBody.innerHTML +=
-                    '<button onclick="changeSeatState(\'libre\')" class="btn btn-info">Libre</button>';
+                    '<button onclick="changeSeatState(\'Disponible\')" class="btn btn-info">Disponible</button>';
             }
             modalBody.innerHTML += '</div>';
 
@@ -550,16 +550,16 @@
             });
         }
 
-        // Cambia el estado del asiento (reserva, venta, devolución, libre)
-        function changeSeatState(newState) {
+        // Cambia el estado del asiento (Reservado, Vendido, Devolucion, Disponible)
+                function changeSeatState(newState) {
             // Validación de transiciones permitidas
-            if (currentSeatState === "devolucion" && newState !== "libre") {
-                alert("Sólo se puede cambiar a Libre desde Devolución.");
+            if (currentSeatState === "Devolucion" && newState !== "Disponible") {
+                alert("Sólo se puede cambiar a Disponible desde Devolución.");
                 return;
             }
 
-            // Si partimos de libre y vamos a reserva/venta, validamos pasajero
-            if (currentSeatState === "libre" && (newState === "reserva" || newState === "venta")) {
+            // Si partimos de Disponible y vamos a Reservado/Vendido, validamos pasajero
+            if (currentSeatState === "Disponible" && (newState === "Reservado" || newState === "Vendido")) {
                 var passport = document.getElementById("passportInput").value.trim();
                 var passenger = document.getElementById("passengerInput").value.trim();
                 if (passport === "" || passenger === "") {
@@ -571,37 +571,38 @@
                     type: 'POST',
                     data: { passport: passport, passenger: passenger },
                     success: function (response) {
-                        if (response.success) {
-                            // Asignamos atributos data- al elemento del asiento
-                            currentSeat.setAttribute("data-passport", passport);
-                            currentSeat.setAttribute("data-passenger", response.passenger);
-                            // Cambiamos clases CSS para reflejar el nuevo estado
-                            currentSeat.className = 'seat ' + newState;
-                            if (newState === "venta") {
-                                closeSeatModal();
-                                openTicketModal();
-                            } else {
-                                closeSeatModal();
-                            }
-                        } else {
-                            alert(response.message);
-                        }
+                         if (response.success) {
+                             // Asignamos atributos data- al elemento del asiento
+                             currentSeat.setAttribute("data-passport", passport);
+                             currentSeat.setAttribute("data-passenger", response.passenger);
+                             // Cambiamos clases CSS para reflejar el nuevo estado
+                             currentSeat.className = 'seat ' + newState;
+
+                             if (newState === "Vendido") {
+                                 closeSeatModal();
+                                 openTicketModal();
+                             } else {
+                                 closeSeatModal();
+                             }
+                         } else {
+                             alert(response.message);
+                         }
                     },
                     error: function () {
                         alert("Error al validar el pasajero.");
                     }
                 });
             }
-            // Para cambios simples (reserva→devolución, devolución→libre, etc.)
-            else {
-                currentSeat.className = 'seat ' + newState;
-                if (newState === "venta") {
-                    closeSeatModal();
-                    openTicketModal();
-                } else {
-                    closeSeatModal();
-                }
-            }
+            // Para cambios simples (Reservado→devolución, devolución→Disponible, etc.)
+             else {
+                 currentSeat.className = 'seat ' + newState;
+                 if (newState === "Vendido") {
+                     closeSeatModal();
+                     openTicketModal();
+                 } else {
+                     closeSeatModal();
+                 }
+             }
         }
 
         // Muestra el modal del ticket con datos del vuelo y asiento
@@ -645,11 +646,11 @@
 
         // Devuelve el estado actual del asiento según su clase CSS
         function getSeatState(seatElement) {
-            if (seatElement.classList.contains("libre")) return "libre";
-            if (seatElement.classList.contains("reserva")) return "reserva";
-            if (seatElement.classList.contains("venta")) return "venta";
-            if (seatElement.classList.contains("devolucion")) return "devolucion";
-            return "libre";
+            if (seatElement.classList.contains("Disponible")) return "Disponible";
+            if (seatElement.classList.contains("Reservado")) return "Reservado";
+            if (seatElement.classList.contains("Vendido")) return "Vendido";
+            if (seatElement.classList.contains("Devolucion")) return "Devolucion";
+            return "Disponible";
         }
 
         // Cierra modales al hacer click fuera de ellos
@@ -685,5 +686,12 @@
             }
         });
     </script>
+
+    <script>
+        var currentFlightId = @ViewBag.FlightId;
+        var servidorOrigen = "@ViewBag.SelectedCountry";
+    </script>
+
+
 
 }

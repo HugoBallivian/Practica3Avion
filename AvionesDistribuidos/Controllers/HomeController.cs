@@ -103,6 +103,7 @@ namespace AvionesDistribuidos.Controllers
                 // Leer configuración guardada en TempData
                 var config = JsonConvert.DeserializeObject<dynamic>(TempData["SeatConfig"].ToString());
                 TempData.Keep("SeatConfig"); // mantener para la siguiente petición
+                ViewBag.FlightId = (int)config.FlightId;
 
                 // Primera clase: filas A→LastRow1, columnas 1→LastCol1
                 char fcRowStart = 'A';
@@ -334,6 +335,13 @@ namespace AvionesDistribuidos.Controllers
                     .Where(a => a.VueloId == idVuelo)
                     .ToDictionary(a => a.NumeroAsiento, a => a.Precio);
 
+                // Obtener los estados de los asientos de la base de datos para ese vuelo
+                var estadosDB = _context.EstadosAsientosVuelo
+                    .AsNoTracking()
+                    .Where(e => e.VueloId == idVuelo && e.Estado != null)
+                    .Select(e => new { e.AsientoId, e.Estado })
+                    .ToDictionary(e => e.AsientoId, e => e.Estado ?? "Disponible");
+
                 // Mismos cálculos de filas y columnas que en Index()
                 char fcRowStart = 'A';
                 char fcRowEnd = config.LastRow1;
@@ -344,8 +352,8 @@ namespace AvionesDistribuidos.Controllers
                 int econColStart = config.LastCol1 + 1;
                 int econColEnd = config.LastCol2;
 
-                var firstClassRows = GenerateSeatRows(fcRowStart, fcRowEnd, fcColStart, fcColEnd, asientosDB, preciosAsientosDB);
-                var economyRows = GenerateSeatRows(econRowStart, econRowEnd, econColStart, econColEnd, asientosDB, preciosAsientosDB);
+                var firstClassRows = GenerateSeatRows(fcRowStart, fcRowEnd, fcColStart, fcColEnd, asientosDB, preciosAsientosDB, estadosDB);
+                var economyRows = GenerateSeatRows(econRowStart, econRowEnd, econColStart, econColEnd, asientosDB, preciosAsientosDB, estadosDB);
 
                 seatConfig = new List<SeatConfiguration>
                 {
@@ -415,7 +423,7 @@ namespace AvionesDistribuidos.Controllers
             return rows;
         }
 
-        private List<SeatRow> GenerateSeatRows(char rowStart, char rowEnd, int colStart, int colEnd, Dictionary<string, int> asientosDB, Dictionary<string, decimal> preciosAsientosDB)
+        private List<SeatRow> GenerateSeatRows(char rowStart, char rowEnd, int colStart, int colEnd, Dictionary<string, int> asientosDB, Dictionary<string, decimal> preciosAsientosDB, Dictionary<int?, string> estadosDB)
         {
             var rows = new List<SeatRow>();
             for (char row = rowStart; row <= rowEnd; row++)
@@ -428,7 +436,7 @@ namespace AvionesDistribuidos.Controllers
                     var seat = new Seat
                     {
                         SeatId = seatId,
-                        State = 0 // estado inicial libre
+                        //State = 0 // estado inicial libre
                     };
 
                     if (asientosDB.TryGetValue(seatId, out var idAsiento))
@@ -439,8 +447,16 @@ namespace AvionesDistribuidos.Controllers
                     {
                         seat.Price = priceAsiento;
                     }
+                    if (estadosDB.TryGetValue(idAsiento, out var estado))
+                    {
+                        seat.State = estado;
+                    }
+                    else
+                    {
+                        seat.State = "Disponible"; // estado inicial libre
+                    }
 
-                    seats.Add(seat);
+                        seats.Add(seat);
                 }
 
                 rows.Add(new SeatRow { RowLabel = row.ToString(), Seats = seats });
@@ -476,5 +492,6 @@ namespace AvionesDistribuidos.Controllers
         }
 
         #endregion
+
     }
 }
